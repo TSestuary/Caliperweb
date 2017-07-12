@@ -9,6 +9,7 @@ from django.http import HttpResponse
 import ast
 import time
 import subprocess
+from dwebsocket.decorators import accept_websocket
 # Create your views here.
 # ORIGINAL_PATH="D:\\origin_caliper\\caliper-master\\test_cases_cfg\\common_backup"
 # PATH="D:\\origin_caliper\\caliper-master\\test_cases_cfg\\common"
@@ -113,6 +114,18 @@ def run(request):
     return render(request,'run.html',{"selected_tools":selected_tools})
 '''
 
+@accept_websocket
+def echo(request):
+    if not request.is_websocket():#判断是不是websocket连接
+        return render(request,'run.html')
+    else:
+        command="ping www.baidu.com"
+        popen = subprocess.Popen(command,stdout = subprocess.PIPE,bufsize=1,shell=True)
+        for msg in iter(popen.stdout.readline, ''):
+            message=msg.decode('gb2312').encode('utf-8')
+            print message
+            request.websocket.send(message)
+    
 def run(request):
     return render(request,'run.html')
 

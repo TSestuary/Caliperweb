@@ -40,6 +40,7 @@ urlpatterns = [
     url(r'^by_category$',run_views.by_category,name='by_category'),
     url(r'^by_import$',run_views.by_import,name='by_import'),
     url(r'^run$',run_views.run,name='run'),
+    url(r'^echo$',run_views.echo,name='echo'),
     url(r'^ajax_testtool$',run_views.ajax_testtool,name='ajax_testtool'),
     url(r'^ajax_savecfg$',run_views.ajax_savecfg,name='ajax_savecfg'),
     url(r'^admin/', admin.site.urls),
