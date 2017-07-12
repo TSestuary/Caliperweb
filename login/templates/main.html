@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Caliper | Introduction</title>
+
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/font-awesome/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/static/css/animate.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+
+</head>
+
+<body class="gray-bg">
+<div>
+    <div class="row border-bottom white-bg">
+        <nav class="navbar navbar-static-top  " role="navigation" style="margin-bottom: 0">
+                    {% comment %}<div class="navbar-header">
+                        <button aria-controls="navbar" aria-expanded="false" data-target="#navbar" data-toggle="collapse" class="navbar-toggle collapsed" type="button">
+                            <i class="fa fa-reorder"></i>
+                        </button>
+                        <span class="navbar-brand">CALIPER</span>
+                    </div>{% endcomment %}
+            <ul class="nav navbar-top-links navbar-right ">
+                <li>
+                    <a href="downloadfile">
+                        <i class="fa fa-cloud-download" style="color:#1ab394;" ></i><span style="font-weight:500">Download Caliper</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/login">
+                        <i class="fa fa-sign-in" style="color:#1ab394;"></i><span style="font-weight:500"> Log in</span>
+                    </a>
+                </li>
+            </ul>
+
+        </nav>
+    </div>
+
+    <div class="wrapper wrapper-content animated fadeIn">
+        <div class="row">
+            <div class="col-lg-1"></div>
+                <div class="col-lg-10">
+                    <div class="tabs-container">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a data-toggle="tab" href="#tab-1">Introduction</a></li>
+                            <li class=""><a data-toggle="tab" href="#tab-2">Set up</a></li>
+                            <li class=""><a data-toggle="tab" href="#tab-3">GUI Video</a></li>
+                            <li class=""><a data-toggle="tab" href="#tab-4">Benchmark</a></li>
+                            <li class=""><a href="https://www.baidu.com">View Source Code</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="tab-1" class="tab-pane active">
+                                <div class="panel-body">
+                                    <h1 id="title1"><span id="1_What_is_Caliper">What is Caliper?</span></h1>
+                                    <p>Caliper is a benchmarking framework for hardware platforms, integrated with industry standard tools and test cases. It provides detailed performance assessments for server platforms based on ARM64 and X86_64.</p>
+                                    <p>Caliper executes on a host system which is connected to the target platforms through network. The performance parameters are captured from the targets and converted to score through series of formulas. Thereby caliper intuitively presents various performance values and shows the performance gaps of the hardware platforms.</p>
+                                    <p>The uniqueness of caliper is a consolidated score based evaluation. The best performance in each test will get a score of 100. All other test scores are calculated relative to this. This provides a clear relative positioning of each target platform. It enables easy analysis of the performance levels and bottlenecks.</p>
+                                    <p>As the performance testing can depends on system hardware resources at the time of execution, it is bound to vary over repeated testing. In general, this makes it difficult to analyze the performance results. Caliper tries to solve by executing multiple iterations of each test on every platform and ensure low variance. This provides a more believable and stable scores throughout the report.</p>
+                                    <h1><span>Caliper's Effect</span></h1>
+                                    <p>...</p>
+                                </div>
+                            </div>
+                            <div id="tab-2" class="tab-pane">
+                                <div class="panel-body">
+                                    <h1 id="title2"><span id="2_Caliper_Setup">2 Caliper Setup</span></h1>
+                                    <p><img src="http://open-estuary.org/wp-content/uploads/2015/08/caliper_setup1.png" alt="http://open-estuary.org/wp-content/uploads/2015/08/caliper_setup1.png" style="display: inline;" class="tc-smart-loaded"></p>
+                                    <p>Caliper requires:</p>
+                                    <ul>
+                                    <li>Two network switches &#8211; one for 1G network connection and another for 10G network connection.</li>
+                                    <li>Target platform on which all test tools will be execute.</li>
+                                    <li>Two machines which acts as clients.</li>
+                                    <li>One machine for caliper host.</li>
+                                    <li>Extra client (connected through eth3) for specific test cases where target to be stressed with multiple network interfaces.</li>
+                                    </ul>
+                                    <h1><span id="3_Caliper_Configuration">3 Caliper Configuration</span></h1>
+                                    <p>This section will discuss about the high level steps involved for caliper configurations.</p>
+                                    <p>Please see the detailed steps from the manual in the following link:</p>
+                                    <p><a href="https://github.com/open-estuary/caliper/blob/master/docs/Caliper_User_Manual.pdf">https://github.com/open-estuary/caliper/blob/master/docs/Caliper_User_Manual.pdf</a></p>
+                                    <p>Get the caliper tool from <a href="https://github.com/open-estuary/caliper.git">https://github.com/open-estuary/caliper.git</a></p>
+                                    <p>Install the caliper in your system using below steps:</p>
+                                    <ul>
+                                    <li>Install the dependency packages for all the machines to execute tools.</li>
+                                    <li>Configure system login information in ~/caliper_output/configuration/config/client_config.cfg file.</li>
+                                    <li>Choose the tools which user wants to execute from ~/caliper_output/configuration/test_cases_cfg/ directory.</li>
+                                    </ul>
+                                    <h1><span id="4_Caliper_Execution">4 Caliper Execution</span></h1>
+                                    <p>Executes the caliper with &#8220;caliper -brps&#8221; command. By default caliper command is configured with &#8220;brps&#8221; option.</p>
+                                    <p>To execute caliper with the supported options, refer caliper user manual section 5.1.</p>
+                                    <h1 class="western"><span id="5_Generate_caliper_report_in_HTML_format">5 Generate caliper report in HTML format</span></h1>
+                                    <p>Refer section 5.2 in the user manual. High level steps are as follows:</p>
+                                    <ul>
+                                    <li>After the successful caliper execution, it generated three files form each platform (platform.yaml, platform_score.yaml, platform_hw_info.yaml) inside the ~/caliper_output/&lt;workspace directory&gt;/output/results/yaml directory.</li>
+                                    <li>Copy these files into ~/caliper_output/frontend/frontend/data_files/Input_Logs/ directory as specified in caliper user manual.</li>
+                                    <li>Execute &#8220;caliper -BRPSw&#8221; command.</li>
+                                    <li>Report will be generated as ~/caliper_output/&lt;_WS_current_data_time&gt;/output/results/test_results.tar.gz.</li>
+                                    <li>Untar the test_results.tar.gz file and open index.html file with google chrome explorer.</li>
+                                    </ul>
+                                    <h1><span id="6_General_Tips">6 General Tips</span></h1>
+                                    <h2><span id="61_Checklist_for_caliper_execution">6.1 Checklist for caliper execution</span></h2>
+                                    <ul>
+                                    <li>Confirm the hostname configuration in below files for hadoop tool execution:</li>
+                                    </ul>
+                                    <p style="padding-left: 60px;">In /etc/hostname file:<br />
+                                    localhost.localdomain</p>
+                                    <p style="padding-left: 60px;">In /etc/hosts add this line:<br />
+                                    127.0.0.1 localhost</p>
+                                    <ul>
+                                    <li>After updating above files, user has to reboot the target platform.</li>
+                                    <li>Mount separate disk (Example: /dev/sdb1) at /mnt/sdb (create the mount if not exists) for storage tools testing.</li>
+                                    <li>Start mysql server for centos target platform: cd /usr/local/mysql; ./bin/mysqld_safe &amp;</li>
+                                    <li>Check all Ethernet interfaces which will be use for caliper execution.</li>
+                                    </ul>
+                                    <p>Use this command to check the Ethernet interfaces: ethtool &lt;interface name&gt;</p>
+                                    <ul>
+                                    <li>Check the ping response of all the ip addresses which will be use for caliper execution. (Refer ~/caliper_output/configuration/config/client_config.cfg file for ip addresses which will be used for caliper execution)</li>
+                                    </ul>
+                                    <h2><span id="62_Caliper_output_log_verification">6.2 Caliper output log verification</span></h2>
+                                    <p>After caliper execution has been completed, verify below files are present in the workspace.</p>
+                                    <ul>
+                                    <li>output/final_parsing_logs.yaml – This file will be used for caliper framework. It is an intermediate file, which is not relevant for end user.</li>
+                                    <li>output/results_summary.log – summary information of tool execution status.</li>
+                                    <li>output/caliper_exe.log – execution time of tool</li>
+                                    <li>caliper_build/&lt;each tool build log&gt; &#8211; If the tool is successfully build, then the file name will be &lt;tool_name_arch_name&gt;.suc. If the tool in not able to build successfully, then the file name will be &lt;tool_name_arch_name&gt;.fail. User has to review the reason for failure and fix the issue.</li>
+                                    <li>caliper_exec/&lt;each tool output log&gt; &#8211; The output log of each tool will be present in caliper_exec directory. If tool execution has been failed, then user can review the log file and fix the issue accordingly.</li>
+                                    <li>result/yaml/&lt;platform name given in client_config.cfg file&gt;.yaml – This file contain the test case results of each tool.</li>
+                                    <li>results/yaml/&lt;platform name given in client_config.cfg file&gt;_score.yaml – This file contain the test case results of each tool in compressed way.</li>
+                                    <li>results/yaml/&lt;platform name given in client_config.cfg file&gt;_hw_info.yaml – This file contain the hardware information of the platform.</li>
+                                    </ul>
+                                    <h2><span id="63_Caliper_re-execution_for_failed_tools">6.3 Caliper re-execution for failed tools</span></h2>
+                                    <p>Refer below steps if user wants to execute caliper for those tools which has been failed.</p>
+                                    <ul>
+                                    <li>Execute this command: cd ~/caliper_output/&lt;workspace created by caliper&gt;/test_cases_cfg/</li>
+                                    <li>Choose only failed tools in following files:</li>
+                                    </ul>
+                                    <p style="padding-left: 60px;">common_cases_def.cfg</p>
+                                    <p style="padding-left: 60px;">server_cases_def.cfg</p>
+                                    <p style="padding-left: 60px;">application_cases_def.cfg</p>
+                                    <ul>
+                                    <li>Execute this command: caliper -brpsf &lt;workspace created by caliper&gt;</li>
+                                    <li>After successful execution of all the tools, uncomment all the tools in common_cases_def.cfg, server_cases_def.cfg and application_cases_def.cfg files.</li>
+                                    <li>Perform parsing and scoring using the command: caliper -BRpsf &lt;workspace created by caliper&gt;</li>
+                                    <li>Please verify that all the yaml files has been created in “output/results/yaml” directory.</li>
+                                    </ul>
+                                    <h2><span id="64_Change_platform_name_in_HTML_report">6.4 Change platform name in HTML report</span></h2>
+                                    <p>If user wants to change the name of the platform in caliper HTML report, then make following changes:</p>
+                                    <ul>
+                                    <li>Execute this command: cd ~/caliper_output/frontend/frontend/data_files/Input_Logs/</li>
+                                    <li>Update the “platform_name&gt;.yaml” files in Input_Consolidated directory and change the name inside this file at 2 places: (see highlighted text)</li>
+                                    </ul>
+                                    <p style="padding-left: 60px;">Configuration:</p>
+                                    <p style="padding-left: 60px;">Byte_order: Little Endian</p>
+                                    <p style="padding-left: 60px;">CPU: &#8217;64&#8217;</p>
+                                    <p style="padding-left: 60px;">CPU_type: &#8216;*TBA&#8217;</p>
+                                    <p style="padding-left: 60px;">Hostname: <span style="color: #993300;">platform_name</span></p>
+                                    <p style="padding-left: 60px;">L1d_cache: 1024 kB</p>
+                                    <p style="padding-left: 60px;">L1i_cache: 1536 kB</p>
+                                    <p style="padding-left: 60px;">L2_cache: 8192 kB</p>
+                                    <p style="padding-left: 60px;">L3_cache: 32768 kB</p>
+                                    <p style="padding-left: 60px;">Machine_arch: aarch64</p>
+                                    <p style="padding-left: 60px;">Memory: 523535MB</p>
+                                    <p style="padding-left: 60px;">OS_Version: Linux 4.9.20+</p>
+                                    <p style="padding-left: 60px;">name: <span style="color: #993300;">platform_name</span></p>
+                                    <ul>
+                                    <li>Follow same procedure for &lt;<span style="color: #993300;">platform_name</span>&gt;_score.yaml files in Input_Report directory.</li>
+                                    <li>Update the name of &lt;<span style="color: #993300;">platform_name</span>&gt;_hw_info.yaml files in Input_Hardware directory.</li>
+                                    <li>Execute command: caliper -BRPSw</li>
+                                    <li>New workspace will be created in ~/caliper_output directory.</li>
+                                    <li>Switch to the new workspace and extract test_results.tar.gz file in output/results directory.</li>
+                                    <li>Open index.html web page.</li>
+                                    </ul>
+                                    <h1 class="western"><span id="7_Appendix">7 Appendix</span></h1>
+                                    <p>Caliper user manual: <a href="https://github.com/open-estuary/caliper/blob/master/docs/Caliper_User_Manual.pdf">https://github.com/open-estuary/caliper/blob/master/docs/Caliper_User_Manual.pdf</a></p>
+                                    <p>Caliper developer manual: <a href="https://github.com/open-estuary/caliper/blob/master/docs/Caliper_Developer_Manual.pdf">https://github.com/open-estuary/caliper/blob/master/docs/Caliper_Developer_Manual.pdf</a></p>
+                                    <p>Nginx tool user guide: <a href="https://github.com/open-estuary/caliper/blob/master/docs/Nginx_Tool_User_Guide.pdf">https://github.com/open-estuary/caliper/blob/master/docs/Nginx_Tool_User_Guide.pdf</a></p>
+                                    <p>Redis tool user guide: <a href="https://github.com/open-estuary/caliper/blob/master/docs/Redis_Tool_User_Guide.pdf">https://github.com/open-estuary/caliper/blob/master/docs/Redis_Tool_User_Guide.pdf</a></p>
+                                </div>
+                            </div>
+                            <div id="tab-3" class="tab-pane">
+                                <div class="panel-body">
+                                    <div class="ibox-content profile-content">
+                                        <h4><strong>Video Description</strong></h4>
+                                        <p>This is a teaching video of installing Caliper by GUI.</p>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-2"></div>
+                                        <div class="col-lg-6">
+                                            <figure>
+                                                <iframe width="850" height="698" src="http://www.youtube.com/embed/bwj2s_5e12U" frameborder="0" allowfullscreen></iframe>
+                                            </figure>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="tab-4" class="tab-pane">
+                                <div class="panel-body">
+                                    <h1><span id="8_List_of_Benchmarks_Supported_in_Caliper">List of Benchmarks Supported in Caliper</span></h1>
+                                    <table style="height: 1589px;" border="0" width="1317" cellspacing="0">
+                                    <colgroup width="85"></colgroup>
+                                    <colgroup width="454"></colgroup>
+                                    <tbody>
+                                    <tr>
+                                    <td align="left" height="17"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">1</span></td>
+                                    <td align="left" height="17"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">openssl</span></td>
+                                    <td align="left">https://www.openssl.org/</td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="17"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">2</span></td>
+                                    <td align="left" height="17"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">coremark</span></td>
+                                    <td align="left">EEMBC, https://www.eembc.org/</td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">3</span></td>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">linpack</span></td>
+                                    <td align="left"><a href="http://www.netlib.org/linpack/">http://www.netlib.org/linpack/</a></td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">4</span></td>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">nbench</span></td>
+                                    <td align="left"><a href="http://www.tux.org/~mayer/linux/bmark.html">http://www.tux.org/~mayer/linux/bmark.html</a></td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">5</span></td>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">lmbench</span></td>
+                                    <td align="left"><a href="http://www.bitmover.com/lmbench/">http://www.bitmover.com/lmbench/</a></td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">6</span></td>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">cachebench</span></td>
+                                    <td align="left"><a href="http://icl.cs.utk.edu/projects/llcbench/cachebench.html">http://icl.cs.utk.edu/projects/llcbench/cachebench.html</a></td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">7</span></td>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">iozone</span></td>
+                                    <td align="left"><a href="http://www.iozone.org/">http://www.iozone.org/</a></td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">8</span></td>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">openblas</span></td>
+                                    <td align="left"><a href="https://github.com/xianyi/OpenBLAS.git">https://github.com/xianyi/OpenBLAS.git</a></td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">9</span></td>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">netperf</span></td>
+                                    <td align="left"><a href="http://www.netperf.org/netperf/">http://www.netperf.org/netperf/</a></td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="17"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">10</span></td>
+                                    <td align="left" height="17"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">dhrystone</span></td>
+                                    <td align="left">http://fossies.org/linux/privat/old/dhrystone-2.1.tar.gz/</td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="18">11</td>
+                                    <td align="left" height="18"> qperf</td>
+                                    <td align="left">install qperf &#8211; &#8220;apt-get install qperf&#8221; or &#8220;yum install qperf&#8221;</td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="18">12</td>
+                                    <td align="left" height="18"> nginx</td>
+                                    <td align="left"><a href="http://nginx.org/download/nginx-1.11.13.tar.gz">http://nginx.org/download/nginx-1.11.13.tar.gz</a></td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="18">13</td>
+                                    <td align="left" height="18"> redis</td>
+                                    <td align="left"><a href="https://github.com/sjtuhjh/applications">https://github.com/sjtuhjh/applications</a></td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">14</span></td>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">fio</span></td>
+                                    <td align="left">GPL v2, <a href="https://github.com/axboe/fio/blob/master/COPYING">https://github.com/axboe/fio/blob/master/COPYING</a></td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">15</span></td>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">hibench</span></td>
+                                    <td align="left"><a href="https://github.com/intel-hadoop/HiBench">https://github.com/intel-hadoop/HiBench</a></td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">16</span></td>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">iperf3</span></td>
+                                    <td align="left">BSD license, <a href="http://iperf.sourceforge.net/">http://iperf.sourceforge.net/ ,https://github.com/esnet/iperf</a></td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="17"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">17</span></td>
+                                    <td align="left" height="17"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">netperf</span></td>
+                                    <td align="left">HP license, http://www.calculate-linux.org/packages/licenses/netperf</td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="17"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">18</span></td>
+                                    <td align="left" height="17"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">scimark2</span></td>
+                                    <td align="left">public domain, http://math.nist.gov/scimark2/credits.html</td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="34"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">19</span></td>
+                                    <td align="left" height="34"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">sysbench</span></td>
+                                    <td align="left">GPL v2, <a href="https://github.com/akopytov/sysbench">https://github.com/akopytov/sysbench , http://imysql.com/wp-content/uploads/2014/10/sysbench-manual.pdf</a></td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="18">20</td>
+                                    <td align="left" height="18"> unixbench</td>
+                                    <td align="left">https://github.com/kdlucas/byte-unixbench</td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">21</span></td>
+                                    <td align="left" height="18"><span style="font-family: 'Liberation Mono', 'Cumberland AMT', Cumberland, 'Courier New', Cousine, 'Nimbus Mono L', 'DejaVu Sans Mono', Courier, 'Lucida Sans Typewriter', 'Lucida Typewriter', Monaco, Monospaced;">stress-ng</span></td>
+                                    <td align="left">http://kernel.ubuntu.com/~cking/stress-ng/</td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="18">22</td>
+                                    <td align="left" height="18">Unzip</td>
+                                    <td align="left">Compression benchmark</td>
+                                    </tr>
+                                    <tr>
+                                    <td align="left" height="17">23</td>
+                                    <td align="left" height="17">Compile</td>
+                                    <td align="left">Compilation performance benchmark</td>
+                                    </tr>
+                                    </tbody>
+                                    </table>
+                                    <p>Suggestions/ feedbacks @ shyju.pv@gmail.com</p>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+</div>
+
+    <!-- Mainly scripts -->
+    <script src="/static/js/jquery-2.1.1.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    
+</body>
+</html>

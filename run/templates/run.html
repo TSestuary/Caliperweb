@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Caliper | run{% endblock title%}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-4">
+        <form method="post" class="form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Host:</label>
+                <div class="col-sm-10"><input type="text" class="form-control"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">User:</label>
+                <div class="col-sm-10"><input type="text" class="form-control"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Password:</label>
+                <div class="col-sm-10"><input type="password" class="form-control"></div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Command:</label>
+                <div class="col-sm-10"><input type="text" class="form-control"></div>
+            </div>
+            <button id="confirm_btn" type="submit" class="btn btn-primary pull-right">Confirm</button>
+        </form>
+    </div>
+    <div class="col-lg-7">
+        <textarea rows="30" cols="120" spellcheck="false"></textarea>
+    </div>
+</div>
+{% endblock content%}
+
+{% block script %}
+{% endblock %}

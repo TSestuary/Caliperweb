@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+{% block title %}Caliper | Configure{% endblock title%}
+{% block link %}
+<link href="/static/css/jstree.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <a id="bytesttool"  class="btn btn-info btn-outline bychoice active" role="button">By TestTools</a>
+    <a id="bycategory" href="/by_category"  class="btn btn-info btn-outline bychoice" role="button" >By Test Categories</a>
+    <a id="importconfig" href="/by_import" class="btn btn-info btn-outline bychoice" role="button" >Import Test Configuration</a>
+</div>
+<div class="row" style="margin-top:10px;">
+    <div class="col-lg-4">
+        <div id="jstree_div"></div>
+        <form method="POST" action="/run">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="control-label">Comment</label>
+                <div><input name="comment" type="text" class="form-control"></div>
+            </div>
+            <input id="selected_tools" name="selected_tools" style="display:none;" />
+            <button id="confirm_btn" type="submit" class="btn btn-primary">Confirm</button>
+        </form>
+    </div>
+    <div class="col-lg-7">
+        <div class="md-editor active">
+            <input id="testdir" style="display:none;" /> 
+            <h4 id="cfg_name"></h4>
+            <textarea id="text_area" rows="30" cols="120" spellcheck="false" > </textarea>
+            <button id="save_btn" class="btn btn-primary " type="button"><i class="fa fa-check"></i>&nbsp;Save</button>
+        </div> 
+    </div>
+</div>
+{% endblock content%}
+
+{% block script %}
+<script src="/static/js/jstree.min.js"></script>
+<script>
+    total_test_tools={{total_test_tools|safe}};
+    total_tmp_data=[]
+    for(test_tools in total_test_tools){
+        tmp_data=[];
+        for(key in total_test_tools[test_tools]){
+            child_tmp_data=[];
+            for(index in total_test_tools[test_tools][key]){
+                child_tmp_data.push({"text":total_test_tools[test_tools][key][index]}); 
+            }
+            tmp_data.push({"text":key,"icon" : "fa fa-pencil","children" :child_tmp_data});
+        }
+        total_tmp_data.push({"text":test_tools,"children":tmp_data})
+    }
+
+    jstree_nodes=[];
+    for(key in total_test_tools){
+        jstree_nodes.push(key);
+    }
+
+    var jsonData=[{
+        "text" : "TestTools", 
+        "state" : { "opened" : true },
+         "children" : total_tmp_data
+         /*
+         [
+         {
+             "text" : "TestTool1", 
+             "children" : [
+             {"text":"TestCase1","icon" : "fa fa-pencil" },
+             {"text":"TestCase2","icon" : "fa fa-pencil"},
+             //{"text":"TestCase2","icon" : "glyphicon glyphicon-file"},
+             ]     
+         },
+         {
+             "text" : "TestTool2", 
+             "children" : [
+             {"text":"TestCase3","icon" : "fa fa-pencil"},
+             {"text":"TestCase4","icon" : "fa fa-pencil"},
+             ]     
+         },
+         {
+             "text" : "TestTool3", 
+             "children" : [
+             {"text":"TestCase5","icon" : "fa fa-pencil"},
+             {"text":"TestCase6","icon" : "fa fa-pencil"},
+             ]     
+         },
+         ]
+         */
+    }]
+
+    $(function(){
+        $.ajaxSetup({
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+        });
+        $('#jstree_div')
+        .on("changed.jstree", function (e, data) {
+            var select_test = data.instance.get_selected(true)[0].text; // selected
+            var parent_node= data.instance.get_selected(true)[0].parent;
+            var parent_text = $.jstree.reference("#jstree_div").get_node(parent_node).text;
+            //一二级目录testflag=1;第三级目录testflag=2;第四级testflag=3
+            testflag=0;
+            //测试工具selected
+            if(select_test=="TestTools"|parent_text=="TestTools"){
+                testflag=1;
+            }else if(jstree_nodes.indexOf(parent_text)!=-1){
+                testflag=2
+            }else{
+                testflag=3
+            }
+            if(testflag==2){
+                $.ajax({
+                    type: 'POST',
+                    url: 'ajax_testtool',
+                    data: {'testdir':parent_text,'testtool':select_test},
+                    dataType: 'text',
+                    success:function(ret){
+                        $("textarea").val(ret);
+                        $("#testdir").val(parent_text);
+                        $("#cfg_name").text(select_test+"_run.cfg");
+                    }
+                });
+            }
+            else if(testflag==3){
+                var grandparent_node = $.jstree.reference("#jstree_div").get_node(parent_node).parent;
+                var grandparent_text = $.jstree.reference("#jstree_div").get_node(grandparent_node).text;
+                $.ajax({
+                    type: 'POST',
+                    url: 'ajax_testtool',
+                    data: {'testdir':grandparent_text,'testtool':parent_text},
+                    dataType: 'text',
+                    success:function(ret){
+                        $("textarea").val(ret);
+                        $("#testdir").val(grandparent_text);
+                        $("#cfg_name").text(parent_text+"_run.cfg");
+                        var pos=$("#text_area").val().indexOf("["+select_test+"]");
+                        if(pos!=-1)
+                            setCursorPosition(document.getElementById("text_area"),pos+select_test.length+2);
+                    }
+                });
+                
+            }
+         
+        })
+        .jstree({
+            "plugins" : [ "checkbox","types" ,"changed"],
+            "types": {
+                "default" : {
+                    "icon" : false  // 关闭默认图标
+                },
+            },
+            "checkbox":{  // 去除checkbox插件的默认效果
+                "tie_selection": false,
+                "keep_selected_style": true,
+                "whole_node":false
+
+            },
+            'core' : {
+                'data' : jsonData,
+                "check_callback": true,
+            }
+        });
+        /*
+        $(".fa-pencil").parent().each(function(){
+         $(this).click(function(){
+             alert('tt');
+         })
+        })
+        */
+    });
+
+    
+
+      $("#confirm_btn").click(function(){
+          //var selected_tools=[];
+          var total_cfg_dict=new Array();
+        $.each($('#jstree_div').jstree("get_checked",true),function(){
+            //alert(this.text);
+            var parent_node=this.parent;
+            var parent_text = $.jstree.reference("#jstree_div").get_node(parent_node).text;
+            var grandparent_node=$.jstree.reference("#jstree_div").get_node(parent_node).parent;
+            var grandparent_text = $.jstree.reference("#jstree_div").get_node(grandparent_node).text;
+            //selected_tools.push(this.text);
+            if(jstree_nodes.indexOf(grandparent_text)!=-1){
+                if(total_cfg_dict.hasOwnProperty(grandparent_text)){
+            
+                    if(total_cfg_dict[grandparent_text].hasOwnProperty(parent_text)){
+                        total_cfg_dict[grandparent_text][parent_text].push(this.text);
+                    }else{
+                        total_cfg_dict[grandparent_text][parent_text]=new Array();
+                        total_cfg_dict[grandparent_text][parent_text].push(this.text);
+                    }
+                }else{
+                    total_cfg_dict[grandparent_text]=new Array();
+                    if(total_cfg_dict[grandparent_text].hasOwnProperty(parent_text)){
+                        total_cfg_dict[grandparent_text][parent_text].push(this.text);
+                    }else{
+                        total_cfg_dict[grandparent_text][parent_text]=new Array();
+                        total_cfg_dict[grandparent_text][parent_text].push(this.text);
+                    }
+                }
+            }
+        })
+        console.log(total_cfg_dict); 
+        var total_cfg_str="{"; 
+        for(cfg_dict in total_cfg_dict){
+            var cfg_str="{";
+            //cfg_length=cfg_dict.length;
+            for(key in total_cfg_dict[cfg_dict]){
+                cfg_json= JSON.stringify(total_cfg_dict[cfg_dict][key]);
+                cfg_str += "'"+key+"':"+cfg_json+",";  
+            }
+            cfg_str=cfg_str.replace(/\"/g, "'");
+            cfg_str=cfg_str.substring(0,cfg_str.length-1);
+            cfg_str += "}"
+            total_cfg_str +="'"+cfg_dict+"':"+cfg_str+",";  
+            
+        }
+        total_cfg_str=total_cfg_str.substring(0,total_cfg_str.length-1);
+        total_cfg_str += "}"
+        console.log(total_cfg_str);
+        $("#selected_tools").val(total_cfg_str);
+      })
+   
+     $("#save_btn").click(function(){
+         var cfg_content = $("textarea").val();
+         var testdir = $("#testdir").val();
+         var cfg_name = $("#cfg_name").text();
+         $.ajax({
+                type: 'POST',
+                url: 'ajax_savecfg',
+                data: {'cfg_content':cfg_content,'testdir':testdir,'cfg_name':cfg_name},
+                dataType: 'text',
+                success:function(ret){
+                    console.log(ret);
+                }
+            });
+     })
+
+     function setCursorPosition(elem, index) {
+        var val = elem.value
+        var len = val.length
+    
+        // 超过文本长度直接返回
+        if (len < index) return
+        setTimeout(function() {
+            elem.focus()
+            if (elem.setSelectionRange) { // 标准浏览器
+                elem.setSelectionRange(index, index)   
+            } else { // IE9-
+                var range = elem.createTextRange()
+                range.moveStart("character", -len)
+                range.moveEnd("character", -len)
+                range.moveStart("character", index)
+                range.moveEnd("character", 0)
+                range.select()
+            }
+        }, 10)
+    }
+
+    
+    
+</script>
+{% endblock %}

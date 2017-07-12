@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Caliper | Configure{% endblock title%}
+{% block link %}
+<link href="/static/css/jstree.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="row"> 
+    <a id="bytesttool"  href="/by_tool" class="btn btn-info btn-outline bychoice " role="button">By TestTools</a>
+    <a id="bycategory"  class="btn btn-info btn-outline bychoice active" role="button" >By Test Categories</a>
+    <a id="importconfig" href="/by_import" class="btn btn-info btn-outline bychoice" role="button" >Import Test Configuration</a>
+</div>
+<div class="row" style="margin-top:10px;">
+    <div class="col-lg-4">
+        <div id="jstree_div"></div>
+        <form method="POST" action="/run">
+            {% csrf_token %}
+            <input id="selected_tools" name="selected_tools" style="display:none;" />
+            <button id="confirm_btn" type="submit" class="btn btn-primary">Confirm</button>
+        </form>
+    </div>
+    <div class="col-lg-7">
+        <div class="md-editor active">
+            <input id="testdir" style="display:none;" /> 
+            <h4 id="cfg_name"></h4>
+            <textarea id="text_area" rows="30" cols="120" spellcheck="false" > </textarea>
+            <button id="save_btn" class="btn btn-primary " type="button"><i class="fa fa-check"></i>&nbsp;Save</button>
+        </div>
+    </div>
+</div>
+{% endblock content%}
+
+{% block script %}
+<script src="/static/js/jstree.min.js"></script>
+<script>
+    var jsonData=[{
+        "text" : "Categories", 
+        "state" : { "opened" : true },
+         "children" : 
+         [
+         {
+             "text" : "Category1", 
+             "children" : [
+             {"text":"TestCase1","icon" : "fa fa-pencil" },
+             {"text":"TestCase2","icon" : "fa fa-pencil"},
+             //{"text":"TestCase2","icon" : "glyphicon glyphicon-file"},
+             ]     
+         },
+         {
+             "text" : "Category2", 
+             "children" : [
+             {"text":"TestCase3","icon" : "fa fa-pencil"},
+             {"text":"TestCase4","icon" : "fa fa-pencil"},
+             ]     
+         },
+         {
+             "text" : "Category3", 
+             "children" : [
+             {"text":"TestCase5","icon" : "fa fa-pencil"},
+             {"text":"TestCase6","icon" : "fa fa-pencil"},
+             ]     
+         },
+         ]
+         
+    }]
+
+    $(function(){
+        $('#jstree_div')
+        .jstree({
+            "plugins" : [ "checkbox","types" ,"changed"],
+            "types": {
+                "default" : {
+                    "icon" : false  // 关闭默认图标
+                },
+            },
+            "checkbox":{  // 去除checkbox插件的默认效果
+                "tie_selection": false,
+                "keep_selected_style": true,
+                "whole_node":false
+
+            },
+            'core' : {
+                'data' : jsonData,
+                "check_callback": true,
+            }
+        });
+
+    });
+</script>
+{% endblock %}

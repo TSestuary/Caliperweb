@@ -1,0 +1,6 @@
+#ignore *.pyc files
+*.pyc
+
+#ignore database migration file
+000*
+
