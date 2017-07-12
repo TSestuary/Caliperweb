@@ -140,3 +140,9 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "resources/common_static"),
 )
+
+DOWNLOAD_PATH = os.path.join(BASE_DIR, "resources/download")
+DOWNLOAD_NAME="install_tar.tar.gz"
+
+ORIGINAL_TOTAL_PATH = os.path.join(BASE_DIR, "resources/cfg/test_cases_cfg_backup")
+PRE_PATH = os.path.join(BASE_DIR, "resources/cfg")

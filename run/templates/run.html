@@ -4,54 +4,60 @@
 {% block content %}
 <div class="row">
     <div class="col-lg-4">
-        <form method="post" class="form-horizontal">
-            {% csrf_token %}
+        <form class="form-horizontal" >
             <div class="form-group">
                 <label class="col-sm-2 control-label">Host:</label>
-                <div class="col-sm-10"><input type="text" class="form-control"></div>
+                <div class="col-sm-10"><input id="host" name="host" type="text" class="form-control"></div>
             </div>
             <div class="form-group">
                 <label class="col-sm-2 control-label">User:</label>
-                <div class="col-sm-10"><input type="text" class="form-control"></div>
+                <div class="col-sm-10"><input id="user" name="user" type="text" class="form-control"></div>
             </div>
             <div class="form-group">
                 <label class="col-sm-2 control-label">Password:</label>
-                <div class="col-sm-10"><input type="password" class="form-control"></div>
+                <div class="col-sm-10"><input id="password" name="password" type="password" class="form-control"></div>
             </div>
             <div class="form-group">
                 <label class="col-sm-2 control-label">Command:</label>
-                <div class="col-sm-10"><input type="text" class="form-control"></div>
+                <div class="col-sm-10"><input id="command" name="command" type="text" class="form-control"></div>
             </div>
             <button id="confirm_btn" type="button" class="btn btn-primary pull-right">Confirm</button>
         </form>
     </div>
     <div class="col-lg-7">
-        <textarea id="terminal" rows="30" cols="120" spellcheck="false" ></textarea>
+        <h4>Terminal real-time output</h4>
+        <textarea id="terminal" rows="30" cols="120" spellcheck="false" style="background-color:white;" disabled></textarea>
     </div>
 </div>
 {% endblock content%}
 
 {% block script %}
 <script>
-    $(function(){
+    $.ajaxSetup({
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+    });
     $("#confirm_btn").click(function(){
         if (window.s) {
                 window.s.close()
-            }
+        }
         var socket = new WebSocket("ws://" + window.location.host + "/echo");
-            socket.onopen = function () {
-                console.log('WebSocket open');//成功连接上Websocket
-            };
-            socket.onmessage = function (e) {
-                console.log('message: ' + e.data);//打印出服务端返回过来的数据
-                $('#terminal').append(e.data );
-                var obj = document.getElementById("terminal");
-                obj.scrollTop = obj.scrollHeight;
-            };
-            // Call onopen directly if socket is already open
-            if (socket.readyState == WebSocket.OPEN) socket.onopen();
-            window.s = socket;
+        socket.onopen = function () {
+            console.log('WebSocket open');//成功连接上Websocket
+        };
+        socket.onmessage = function (e) {
+            console.log('message: ' + e.data);//打印出服务端返回过来的数据
+            $('#terminal').append(e.data );
+            var obj = document.getElementById("terminal");
+            obj.scrollTop = obj.scrollHeight;
+        };
+        // Call onopen directly if socket is already open
+        if (socket.readyState == WebSocket.OPEN) socket.onopen();
+        window.s = socket;
+        
     })
-    })
+   
+
+    
+    
 </script>
 {% endblock %}

@@ -7,10 +7,11 @@ from django.http import HttpResponse
 from django.contrib import auth
 from django.contrib.auth.models import User,Group
 from django.http import StreamingHttpResponse
+from django.conf import settings
 
 # Create your views here.
-DOWNLOAD_PATH="C:\\Users\\yangtt\\Desktop"
-DOWNLOAD_NAME="4.png"
+DOWNLOAD_PATH=settings.DOWNLOAD_PATH
+DOWNLOAD_NAME=settings.DOWNLOAD_NAME
 
 def main(request):
     return render(request, 'main.html')

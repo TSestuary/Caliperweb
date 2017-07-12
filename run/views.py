@@ -10,6 +10,7 @@ import ast
 import time
 import subprocess
 from dwebsocket.decorators import accept_websocket
+from django.conf import settings
 # Create your views here.
 # ORIGINAL_PATH="D:\\origin_caliper\\caliper-master\\test_cases_cfg\\common_backup"
 # PATH="D:\\origin_caliper\\caliper-master\\test_cases_cfg\\common"
@@ -18,6 +19,8 @@ ORIGINAL_TOTAL_PATH="D:\\origin_caliper\\caliper-master\\test_cases_cfg_backup"
 PRE_PATH="D:\\origin_caliper\\caliper-master"
 # USER_PATH = os.path.join(PRE_PATH,request.user.username);
 # USER_PATH_TMP = os.path.join(USER_PATH,"tmp");
+ORIGINAL_TOTAL_PATH=settings.ORIGINAL_TOTAL_PATH
+PRE_PATH=settings.PRE_PATH
 
 def by_tool(request):
     global USER_PATH,USER_PATH_TMP
