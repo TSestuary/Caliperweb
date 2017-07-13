@@ -11,6 +11,7 @@ import time
 import subprocess
 from dwebsocket.decorators import accept_websocket
 from django.conf import settings
+import paramiko
 # Create your views here.
 # ORIGINAL_PATH="D:\\origin_caliper\\caliper-master\\test_cases_cfg\\common_backup"
 # PATH="D:\\origin_caliper\\caliper-master\\test_cases_cfg\\common"
@@ -21,6 +22,8 @@ PRE_PATH="D:\\origin_caliper\\caliper-master"
 # USER_PATH_TMP = os.path.join(USER_PATH,"tmp");
 ORIGINAL_TOTAL_PATH=settings.ORIGINAL_TOTAL_PATH
 PRE_PATH=settings.PRE_PATH
+
+ssh = paramiko.SSHClient()
 
 def by_tool(request):
     global USER_PATH,USER_PATH_TMP
@@ -119,18 +122,29 @@ def run(request):
 
 @accept_websocket
 def echo(request):
+    host = request.GET.get('host')
+    user = request.GET.get('user')
+    password = request.GET.get('password')
+    command = request.GET.get('command')
     if not request.is_websocket():#判断是不是websocket连接
         return render(request,'run.html')
     else:
-        command="ping www.baidu.com"
-        popen = subprocess.Popen(command,stdout = subprocess.PIPE,bufsize=1,shell=True)
-        for msg in iter(popen.stdout.readline, ''):
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(host,username=user, password=password)
+        stdin, stdout, stderr = ssh.exec_command(command,get_pty=True)
+        # popen = subprocess.Popen(command,stdout = subprocess.PIPE,bufsize=1,shell=True)
+        for msg in iter(stdout.readline, ''):
             message=msg.decode('gb2312').encode('utf-8')
             print message
             request.websocket.send(message)
+        ssh.close()
     
 def run(request):
     return render(request,'run.html')
+
+def ajax_stop(request):
+    ssh.close()
+    return HttpResponse('stop')
 
 def ajax_testtool(request):
     testdir=request.POST['testdir']

@@ -7,25 +7,35 @@
         <form class="form-horizontal" >
             <div class="form-group">
                 <label class="col-sm-2 control-label">Host:</label>
-                <div class="col-sm-10"><input id="host" name="host" type="text" class="form-control"></div>
+                <div class="col-sm-10"><input id="host" type="text" class="form-control"></div>
             </div>
             <div class="form-group">
                 <label class="col-sm-2 control-label">User:</label>
-                <div class="col-sm-10"><input id="user" name="user" type="text" class="form-control"></div>
+                <div class="col-sm-10"><input id="user" type="text" class="form-control"></div>
             </div>
             <div class="form-group">
                 <label class="col-sm-2 control-label">Password:</label>
-                <div class="col-sm-10"><input id="password" name="password" type="password" class="form-control"></div>
+                <div class="col-sm-10"><input id="password" type="password" class="form-control"></div>
             </div>
             <div class="form-group">
                 <label class="col-sm-2 control-label">Command:</label>
-                <div class="col-sm-10"><input id="command" name="command" type="text" class="form-control"></div>
+                <div class="col-sm-10"><input id="command" type="text" class="form-control"></div>
             </div>
             <button id="confirm_btn" type="button" class="btn btn-primary pull-right">Confirm</button>
         </form>
     </div>
     <div class="col-lg-7">
-        <h4>Terminal real-time output</h4>
+        <div class="row" style="margin-bottom: 10px;">
+            <div class="col-lg-4">
+                <h4>Terminal real-time output</h4>
+            </div>
+            <div class="col-lg-7">
+                <div class="pull-right">
+                    <button id="stop_btn" type="button" class="btn btn-primary">Stop</button>
+                    <button id="clear_btn" type="button" class="btn btn-primary">Clear Textarea</button>
+                </div>
+            </div>
+        </div>
         <textarea id="terminal" rows="30" cols="120" spellcheck="false" style="background-color:white;" disabled></textarea>
     </div>
 </div>
@@ -37,10 +47,14 @@
             data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
     });
     $("#confirm_btn").click(function(){
+        var host = $("#host").val();
+        var user = $("#user").val();
+        var password = $("#password").val();
+        var command = $("#command").val();
         if (window.s) {
-                window.s.close()
+                window.s.close();
         }
-        var socket = new WebSocket("ws://" + window.location.host + "/echo");
+        var socket = new WebSocket("ws://" + window.location.host + "/echo/?host="+host+"&user="+user+"&password="+password+"&command="+command);
         socket.onopen = function () {
             console.log('WebSocket open');//成功连接上Websocket
         };
@@ -53,11 +67,22 @@
         // Call onopen directly if socket is already open
         if (socket.readyState == WebSocket.OPEN) socket.onopen();
         window.s = socket;
-        
+
     })
    
-
+    $("#stop_btn").click(function(){
+        $.ajax({
+                type: 'POST',
+                url: 'ajax_stop',
+                dataType: 'text',
+                success:function(ret){
+                    console.log(ret);
+                }
+            });
+    })
     
-    
+    $("#clear_btn").click(function(){
+        $("#terminal").text("");
+    })
 </script>
 {% endblock %}

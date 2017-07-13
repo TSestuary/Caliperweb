@@ -142,7 +142,7 @@ STATICFILES_DIRS = (
 )
 
 DOWNLOAD_PATH = os.path.join(BASE_DIR, "resources/download")
-DOWNLOAD_NAME="install_tar.tar.gz"
+DOWNLOAD_NAME="caliper-setup_ubuntu.tar.gz"
 
 ORIGINAL_TOTAL_PATH = os.path.join(BASE_DIR, "resources/cfg/test_cases_cfg_backup")
 PRE_PATH = os.path.join(BASE_DIR, "resources/cfg")
