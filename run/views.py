@@ -12,6 +12,7 @@ import subprocess
 from dwebsocket.decorators import accept_websocket
 from django.conf import settings
 import paramiko
+from paramiko.ssh_exception import AuthenticationException
 # Create your views here.
 # ORIGINAL_PATH="D:\\origin_caliper\\caliper-master\\test_cases_cfg\\common_backup"
 # PATH="D:\\origin_caliper\\caliper-master\\test_cases_cfg\\common"
@@ -130,16 +131,24 @@ def echo(request):
         return render(request,'run.html')
     else:
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(host,username=user, password=password)
-        stdin, stdout, stderr = ssh.exec_command(command,get_pty=True)
-        # popen = subprocess.Popen(command,stdout = subprocess.PIPE,bufsize=1,shell=True)
-        for msg in iter(stdout.readline, ''):
+        try:
+            ssh.connect(host,username=user, password=password)
+            stdin, stdout, stderr = ssh.exec_command(command,get_pty=True)
+            # popen = subprocess.Popen(command,stdout = subprocess.PIPE,bufsize=1,shell=True)
+            for msg in iter(stdout.readline, ''):
+                message=msg.decode('gb2312').encode('utf-8')
+                print message
+                request.websocket.send(message)
+            ssh.close()
+        except AuthenticationException:
+            print 1
+            msg="SSH Authentication Failed! Please check."
             message=msg.decode('gb2312').encode('utf-8')
-            print message
             request.websocket.send(message)
-        ssh.close()
+            
     
 def run(request):
+    ssh.close()
     return render(request,'run.html')
 
 def ajax_stop(request):
