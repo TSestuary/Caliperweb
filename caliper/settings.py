@@ -96,6 +96,7 @@ DATABASES = {
         'USER': 'caliperuser',
         'PASSWORD': 'caliperts',
         'HOST': '127.0.0.1',
+        # 'HOST': '192.168.64.59',
         'PORT': '',
     }
 }
@@ -140,6 +141,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "resources/common_static"),
 )
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
 
 DOWNLOAD_PATH = os.path.join(BASE_DIR, "resources/download")
 DOWNLOAD_NAME="caliper-setup_ubuntu.tar.gz"
