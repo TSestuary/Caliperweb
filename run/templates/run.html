@@ -19,7 +19,24 @@
             </div>
             <div class="form-group">
                 <label class="col-sm-2 control-label">Command:</label>
-                <div class="col-sm-10"><input id="command" type="text" class="form-control" placeholder="caliper -bPRS" ></div>
+                <div class="col-sm-10">
+                    <!-- <input id="command" type="text" class="form-control" placeholder="caliper -bPRS" > -->
+                    <div><label> <input type="checkbox" id="checkbox_build" name="checkbox_para" value="b" aria-off="B"> -b/--build </label></div>
+                    <div><label> <input type="checkbox" id="checkbox_run" name="checkbox_para" value="r" aria-off="R"> -r/--run </label></div>
+                    <div><label> <input type="checkbox" id="checkbox_parse" name="checkbox_para" value="p" aria-off="P"> -p/--parse </label></div>
+                    <div><label> <input type="checkbox" id="checkbox_score" name="checkbox_para" value="s" aria-off="S"> -s/--score </label></div>
+                    <div class="row">
+                        <label class="col-sm-3"><input type="checkbox" id="checkbox_folder" value="f"> -f/--folder </label>
+                        <div class="col-sm-9">
+                            <select class="form-control m-b" id="select_folder" style="margin-top:-4px;">
+                                <option>folderpath1</option>
+                                <option>folderpath2</option>
+                                <option>folderpath3</option>
+                                <option>folderpath4</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
             <button id="confirm_btn" type="button" class="btn btn-primary pull-right">Confirm</button>
         </form>
@@ -46,14 +63,70 @@
     $.ajaxSetup({
             data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
     });
+
+    $("#checkbox_build").click(function(){
+        if($("#checkbox_build")[0].checked){
+            $("#checkbox_folder").attr("checked",false)
+            $("#checkbox_folder").attr("disabled",true);
+            $("#select_folder").attr("disabled",true);
+        }else{
+            $("#checkbox_folder").attr("disabled",false);
+            $("#select_folder").attr("disabled",false);
+        }
+    })
     $("#confirm_btn").click(function(){
+        //check execute parameter order
+        var flag=true;
+        var error=0;
+        if($("#checkbox_build")[0].checked){
+            $("input[name='checkbox_para']").each(function(){
+                if(!this.checked)
+                    flag= this.checked;
+                if(flag != this.checked){
+                    alert("Please check command.");
+                    error = 1;
+                    return false;
+                }
+            })
+            if(error==1){
+                return false;
+            }
+        }else if(!$("#checkbox_folder")[0].checked){
+            if($("#checkbox_run")[0].checked || $("#checkbox_score")[0].checked || $("#checkbox_parse")[0].checked){
+                alert("Please select a specific filepath.");
+            }else{
+                alert("Please complete command.");
+            }
+            return false;
+        }else{
+            if($("#checkbox_run")[0].checked && $("#checkbox_score")[0].checked && !$("#checkbox_parse")[0].checked){
+                alert("Please check command.");
+                return false;
+            }
+        }
+        //generate command
         var host = $("#host").val();
         var user = $("#user").val();
         var password = $("#password").val();
+        var command = "caliper -";
+        if($("#checkbox_folder")[0].checked){
+            command += "f "+ $("#select_folder").val() +" -";
+        }
+        $("input[name='checkbox_para']").each(function(){
+            if(this.checked){
+                command += this.value;
+            }else{
+                command += $(this).attr("aria-off");
+            }
+        })
+        
+        console.log(command);
+        /*
         var command = $("#command").val();
         if(!command){
             command="caliper -bPRS";
         }
+        */
         if (window.s) {
                 window.s.close();
         }
@@ -74,7 +147,7 @@
         // Call onopen directly if socket is already open
         if (socket.readyState == WebSocket.OPEN) socket.onopen();
         window.s = socket;
-
+        
     })
    
     $("#stop_btn").click(function(){
