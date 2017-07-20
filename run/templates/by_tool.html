@@ -2,9 +2,19 @@
 {% block title %}Caliper | Configure{% endblock title%}
 {% block link %}
 <link href="/static/css/jstree.css" rel="stylesheet">
+<style type="text/css">
+        .bg{ display: none;  position: fixed;  top: 0%;  left: 0%;  width: 100%;  height: 100%;  background-color: black;  z-index:1001;  -moz-opacity: 0.7;  opacity:.70;  filter: alpha(opacity=70);}
+</style>
 {% endblock %}
 
 {% block content %}
+<div id="spiner" class="spiner-example bg"  >
+    <div class="sk-spinner sk-spinner-three-bounce" style="margin-top:200px;">
+        <div class="sk-bounce1"></div>
+        <div class="sk-bounce2"></div>
+        <div class="sk-bounce3"></div>
+    </div>
+</div>
 <div class="row">
     <a id="bytesttool"  class="btn btn-info btn-outline bychoice active" role="button">By TestTools</a>
     <a id="bycategory" href="/by_category"  class="btn btn-info btn-outline bychoice" role="button" >By Test Categories</a>
@@ -12,15 +22,16 @@
 </div>
 <div class="row" style="margin-top:10px;">
     <div class="col-lg-4">
+        <div id="cfg_jstree_div"></div>
         <div id="jstree_div"></div>
         <form method="POST" action="/run">
             {% csrf_token %}
             <div class="form-group">
                 <label class="control-label">Comment</label>
-                <div><input name="comment" type="text" class="form-control"></div>
+                <div><input id="comment" name="comment" type="text" class="form-control"></div>
             </div>
             <input id="selected_tools" name="selected_tools" style="display:none;" />
-            <button id="confirm_btn" type="submit" class="btn btn-primary">Confirm</button>
+            <button id="confirm_btn" type="button" class="btn btn-primary">Confirm</button>
         </form>
     </div>
     <div class="col-lg-7">
@@ -38,7 +49,7 @@
 <script src="/static/js/jstree.min.js"></script>
 <script>
     total_test_tools={{total_test_tools|safe}};
-    total_tmp_data=[]
+    total_tmp_data=[];
     for(test_tools in total_test_tools){
         tmp_data=[];
         for(key in total_test_tools[test_tools]){
@@ -87,6 +98,22 @@
          ]
          */
     }]
+
+    cfgs={{cfg|safe}};
+    cfgs_tmp_data=[];
+    for(cfg in cfgs){
+        cfg_tmp_data=[];
+        for(index in cfgs[cfg]){
+            cfg_tmp_data.push({"text":cfgs[cfg][index],"icon" : "fa fa-pencil"}); 
+        }
+        cfgs_tmp_data.push({"text":cfg,"children" :cfg_tmp_data});
+    }
+
+    var cfg_jsonData=[{
+        "text" : "cfg", 
+        "state" : { "opened" : true },
+         "children" : cfgs_tmp_data
+        }]
 
     $(function(){
         $.ajaxSetup({
@@ -166,6 +193,64 @@
          })
         })
         */
+        $('#cfg_jstree_div')
+        .on("changed.jstree", function (e, data) {
+            var select_test = data.instance.get_selected(true)[0].text; 
+            var parent_node= data.instance.get_selected(true)[0].parent;
+            var parent_text = $.jstree.reference("#cfg_jstree_div").get_node(parent_node).text;
+            console.log(select_test);
+            /*
+            var reg = /\.\w+$/;
+            select_test = select_test.replace(reg,'');
+            if(parent_text){
+                parent_text = parent_text.replace(reg,'');
+            }
+            */
+            if(select_test=="cfg"){
+                testflag=1;
+            }else if(parent_text =="cfg"){
+                testflag=2;
+                $.ajax({
+                    type: 'POST',
+                    url: 'ajax_testcfg',
+                    data: {'testcfg':select_test},
+                    dataType: 'text',
+                    success:function(ret){
+                        $("textarea").val(ret);
+                        $("#testdir").val("");
+                        $("#cfg_name").text(select_test);
+                    }
+                });
+            }else{
+                testflag=3;
+                $.ajax({
+                    type: 'POST',
+                    url: 'ajax_testcfg',
+                    data: {'testcfg':parent_text},
+                    dataType: 'text',
+                    success:function(ret){
+                        $("textarea").val(ret);
+                        $("#testdir").val("");
+                        $("#cfg_name").text(parent_text);
+                        var pos=$("#text_area").val().indexOf("["+select_test+"]");
+                        if(pos!=-1)
+                            setCursorPosition(document.getElementById("text_area"),pos+select_test.length+2);
+                    }
+                });
+            }
+        })
+        .jstree({
+            "plugins" : [ "types" ,"changed"],
+            "types": {
+                "default" : {
+                    "icon" : false  // 关闭默认图标
+                },
+            },
+            'core' : {
+                'data' : cfg_jsonData,
+                "check_callback": true,
+            }
+        });
     });
 
     
@@ -218,9 +303,29 @@
         total_cfg_str=total_cfg_str.substring(0,total_cfg_str.length-1);
         total_cfg_str += "}"
         console.log(total_cfg_str);
-        $("#selected_tools").val(total_cfg_str);
+        //$("#selected_tools").val(total_cfg_str);
+        var comment = $("#comment").val();
+        $.ajax({
+                type: 'POST',
+                beforeSend:function () {
+                    $("#spiner").show();
+                },
+                url: 'ajax_run',
+                data: {'selected_tools':total_cfg_str,'comment':comment},
+                dataType: 'text',
+                success:function(ret){
+                    //console.log(ret);
+                    window.location.href="/run";
+                },
+                complete:function(){
+                    
+                    //$("#spiner").hide();
+                     
+                }
+            });
+        
       })
-   
+    
      $("#save_btn").click(function(){
          var cfg_content = $("textarea").val();
          var testdir = $("#testdir").val();
