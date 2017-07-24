@@ -8,5 +8,6 @@
 *.yaml
 *.json
 
-
+#ignore cfg directory
+resources/cfg/**
 

@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 {% block title %}Caliper | run{% endblock title%}
+{% block link %}
+<link href="/static/css/ladda-themeless.min.css" rel="stylesheet">
+{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -38,7 +41,10 @@
                     </div>
                 </div>
             </div>
-            <button id="confirm_btn" type="button" class="btn btn-primary pull-right">Confirm</button>
+            <div class="form-group">
+            <button id="confirm_btn" type="button" class="ladda-button ladda-button-demo btn btn-primary pull-right"  data-style="zoom-in">Confirm</button> 
+            <!-- <button class="ladda-button ladda-button-demo btn btn-primary" data-style="zoom-in"><span class="ladda-label">Submit</span><span class="ladda-spinner"></span></button> -->
+            </div>
         </form>
     </div>
     <div class="col-lg-7">
@@ -59,6 +65,9 @@
 {% endblock content%}
 
 {% block script %}
+<script src="/static/js/spin.min.js"></script>
+<script src="/static/js/ladda.min.js"></script>
+<script src="/static/js/ladda.jquery.min.js"></script>
 <script>
     $.ajaxSetup({
             data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
@@ -74,8 +83,9 @@
             $("#select_folder").attr("disabled",false);
         }
     })
-    $("#confirm_btn").click(function(){
-        //check execute parameter order
+    var l = $( '#confirm_btn' ).ladda();
+    l.click(function(){
+        // check execute parameter order
         var flag=true;
         var error=0;
         if($("#checkbox_build")[0].checked){
@@ -104,7 +114,9 @@
                 return false;
             }
         }
-        //generate command
+        // start button loading
+        l.ladda( 'start' );
+        // generate command
         var host = $("#host").val();
         var user = $("#user").val();
         var password = $("#password").val();
@@ -128,7 +140,7 @@
         }
         */
         if (window.s) {
-                window.s.close();
+            window.s.close();
         }
         var socket = new WebSocket("ws://" + window.location.host + "/echo/?host="+host+"&user="+user+"&password="+password+"&command="+command);
         socket.onopen = function () {
@@ -139,6 +151,8 @@
             if (e.data == "SSH Authentication Failed! Please check."){
                 alert(e.data);
             }else{
+                // stop button loading
+                l.ladda('stop');
                 $('#terminal').append(e.data );
                 var obj = document.getElementById("terminal");
                 obj.scrollTop = obj.scrollHeight;
@@ -156,6 +170,8 @@
                 url: 'ajax_stop',
                 dataType: 'text',
                 success:function(ret){
+                    // stop button loading
+                    l.ladda('stop');
                     console.log(ret);
                 }
             });
@@ -163,6 +179,6 @@
     
     $("#clear_btn").click(function(){
         $("#terminal").text("");
-    })
+    }) 
 </script>
 {% endblock %}
