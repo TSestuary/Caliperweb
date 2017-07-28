@@ -19,7 +19,12 @@ from django.shortcuts import redirect
 ORIGINAL_TOTAL_PATH=settings.ORIGINAL_TOTAL_PATH
 PRE_PATH=settings.PRE_PATH
 
-ssh = paramiko.SSHClient()
+global CLIENTS
+CLIENTS={}
+# client = paramiko.SSHClient()
+
+def host(request):
+    return render(request, 'host.html')
 
 def by_tool(request):
     global USER_PATH,USER_PATH_TMP,USER_PATH_CASE_TMP,USER_PATH_CFG_TMP
@@ -63,17 +68,36 @@ def by_tool(request):
                             sections = conf.sections()
                             test_tools[child_dir]=sections
             total_test_tools[dir]=test_tools
-    return render(request, 'by_tool.html',{'total_test_tools':json.dumps(total_test_tools),'cfg':json.dumps(cfg)})
+    host=request.POST['host']
+    hostuser=request.POST['hostuser']
+    hostpassword=request.POST['hostpassword']
+    return render(request, 'by_tool.html',{'total_test_tools':json.dumps(total_test_tools),'cfg':json.dumps(cfg),'host':host,'hostuser':hostuser,'hostpassword':hostpassword})
 
 def by_category(request):
-    return render(request, 'by_category.html')
+    cfg_files = os.listdir(USER_PATH_CFG_TMP)
+    cfg={}
+    for cfg_file in cfg_files:
+        cfg_filename=os.path.join(USER_PATH_CFG_TMP,cfg_file)
+        with open(cfg_filename,'r') as fr:
+            conf = ConfigParser.ConfigParser()
+            conf.readfp(fr)
+            sections = conf.sections()
+            cfg[cfg_file]=sections
+    host=request.POST['host']
+    hostuser=request.POST['hostuser']
+    hostpassword=request.POST['hostpassword']
+    
+    return render(request, 'by_category.html',{'cfg':json.dumps(cfg),'host':host,'hostuser':hostuser,'hostpassword':hostpassword})
 
 def by_import(request):
-    return render(request, 'by_import.html')
+    host=request.POST['host']
+    hostuser=request.POST['hostuser']
+    hostpassword=request.POST['hostpassword']
+    return render(request, 'by_import.html',{'host':host,'hostuser':hostuser,'hostpassword':hostpassword})
 
 
 def ajax_run(request):
-    ssh.close()
+    # client.close()
     USER_PATH_SAVE = os.path.join(USER_PATH,time.strftime('%Y_%m_%d_%H%M%S',time.localtime(time.time())));
     
     # 列出USER_PATH_TMP下所有文件夹名字，存入数组test_dirs
@@ -124,9 +148,14 @@ def ajax_run(request):
                 conf.write(fw)
     shutil.copytree(USER_PATH_TMP, USER_PATH_SAVE)
     comment=request.POST['comment']
-    copy_cfg(USER_PATH_TMP)
+    host=request.POST['host']
+    hostuser=request.POST['hostuser']
+    hostpassword=request.POST['hostpassword']
+    copy_cfg(host,hostuser,hostpassword,USER_PATH_TMP)
     # return render(request,'run.html',{"selected_tools":selected_tools})
-    return HttpResponse(selected_tools)
+    success_dict={"host":host,"hostuser":hostuser,"hostpassword":hostpassword}
+    return HttpResponse(json.dumps(success_dict),content_type="application/json")
+    # return HttpResponse(selected_tools)
 
 
 @accept_websocket
@@ -138,16 +167,22 @@ def echo(request):
     if not request.is_websocket():#判断是不是websocket连接
         return render(request,'run.html')
     else:
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        # client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        locals()[request.user.username]= paramiko.SSHClient()
+        CLIENTS[request.user.username]=locals()[request.user.username]
         try:
-            ssh.connect(host,username=user, password=password)
-            stdin, stdout, stderr = ssh.exec_command(command,get_pty=True)
+            # client.connect(host,username=user, password=password) 
+            trans = paramiko.Transport((host, 22))
+            trans.connect(username=user, password=password)
+            locals()[request.user.username]._transport = trans
+            stdin, stdout, stderr = locals()[request.user.username].exec_command(command,get_pty=True)
             # popen = subprocess.Popen(command,stdout = subprocess.PIPE,bufsize=1,shell=True)
             for msg in iter(stdout.readline, ''):
                 message=msg.decode('gb2312').encode('utf-8')
                 print message
                 request.websocket.send(message)
-            ssh.close()
+            trans.close()
+            locals()[request.user.username].close()
         except AuthenticationException:
             print 1
             msg="SSH Authentication Failed! Please check."
@@ -156,12 +191,12 @@ def echo(request):
             
     
 def run(request):
-    ssh.close()
+    # client.close()
     # platform=request.POST['platform']
     # ip=request.POST['ip']
-    # port=request.POST['port']
-    # user=request.POST['user']
-    # password=request.POST['password']
+    host=request.POST['host']
+    hostuser=request.POST['hostuser']
+    hostpassword=request.POST['hostpassword']
     # filename = "D:\\origin_caliper\\caliper-master\\configuration\\config\\client_config.cfg"
     # with open(filename,'r') as fr:
     #     conf = ConfigParser.ConfigParser()
@@ -172,7 +207,7 @@ def run(request):
     #     conf.set("TARGET", "user", user)
     # with open(filename, 'w') as fw:
     #     conf.write(fw)
-    return render(request,'run.html')
+    return render(request,'run.html',{'host':host,'hostuser':hostuser,'hostpassword':hostpassword})
 
 
 def cfg(request):
@@ -197,7 +232,12 @@ def cfg(request):
     return render(request,'cfg.html',{"cfg_dict":cfg_dict})
 
 def ajax_stop(request):
-    ssh.close()
+    if CLIENTS.has_key(request.user.username):
+        print request.user.username
+        print 'stop'
+        CLIENTS[request.user.username].get_transport().close()
+        CLIENTS[request.user.username].close()
+        del CLIENTS[request.user.username]
     return HttpResponse('stop')
 
 def ajax_testtool(request):
@@ -244,15 +284,15 @@ def ajax_savecfg(request):
     f.writelines(cfg_content)
     return HttpResponse(cfg_path)
 
-def copy_cfg(cfg_path):
+def copy_cfg(host,user,password,cfg_path):
     # path = os.getcwd()
     # cfg_path = os.path.join(path, 'resources%scfg%sconfiguration_backup'%(os.sep, os.sep))
     # host = request.GET.get('host')
     # user = request.GET.get('user')
     # password = request.GET.get('password')
-    host = '192.168.65.249'
-    user = 'ts'
-    password = '123'
+    # host = '192.168.65.249'
+    # user = 'ts'
+    # password = '123'
     ssh = paramiko.Transport(host,22)
     ssh.connect(username= user, password = password)
     sftp = paramiko.SFTPClient.from_transport(ssh)
@@ -281,4 +321,3 @@ def search(user, sftp, path):
                 sftp.open(host_path, 'a')
                 sftp.put(item_path, host_path)
     
-

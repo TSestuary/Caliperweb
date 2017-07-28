@@ -15,24 +15,58 @@
         <div class="sk-bounce3"></div>
     </div>
 </div>
+<div class="form-group">
+        <form method="POST" action="/run">
+            {% csrf_token %}
+            <input name="host" style="display:none;" value="{{host}}" />
+            <input name="hostuser" style="display:none;" value="{{hostuser}}" />
+            <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
+            <button id="skip_btn" type="submit" class="btn btn-primary">Skip</button>
+            <span>(跳过配置，使用host下user目录原有configuration,仅供测试方便使用)</span>
+        </form>
+</div>
 <div class="row">
-    <a id="bytesttool"  class="btn btn-info btn-outline bychoice active" role="button">By TestTools</a>
-    <a id="bycategory" href="/by_category"  class="btn btn-info btn-outline bychoice" role="button" >By Test Categories</a>
-    <a id="importconfig" href="/by_import" class="btn btn-info btn-outline bychoice" role="button" >Import Test Configuration</a>
+    <form method="POST" action="/run/by_tool" style="display:inline-block">
+        {% csrf_token %}
+        <input name="host" style="display:none;" value="{{host}}" />
+        <input name="hostuser" style="display:none;" value="{{hostuser}}" />
+        <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
+        <button id="bytesttool"  class="btn btn-info btn-outline bychoice active" type="submit">By TestTools</button>
+    </form>
+    <form method="POST" action="/run/by_category" style="display:inline-block">
+        {% csrf_token %}
+        <input name="host" style="display:none;" value="{{host}}" />
+        <input name="hostuser" style="display:none;" value="{{hostuser}}" />
+        <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
+        <button id="bycategory" class="btn btn-info btn-outline bychoice" type="submit">By Test Categories</button>
+    </form>
+    <form method="POST" action="/run/by_import" style="display:inline-block">
+        {% csrf_token %}
+        <input name="host" style="display:none;" value="{{host}}" />
+        <input name="hostuser" style="display:none;" value="{{hostuser}}" />
+        <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
+        <button id="importconfig" class="btn btn-info btn-outline bychoice" type="submit" >Import Test Configuration</button>
+    </form>
 </div>
 <div class="row" style="margin-top:10px;">
     <div class="col-lg-4">
         <div id="cfg_jstree_div"></div>
         <div id="jstree_div"></div>
-        <form method="POST" action="/run">
+        <div>
+        <form id="torun" method="POST" action="/run">
             {% csrf_token %}
             <div class="form-group">
                 <label class="control-label">Comment</label>
-                <div><input id="comment" name="comment" type="text" class="form-control"></div>
+                <div><input id="comment" type="text" class="form-control"></div>
             </div>
-            <input id="selected_tools" name="selected_tools" style="display:none;" />
+            <input id="selected_tools" style="display:none;" />
+            <input id="host" name="host" style="display:none;" value="{{host}}" />
+            <input id="hostuser" name="hostuser" style="display:none;" value="{{hostuser}}" />
+            <input id="hostpassword" name="hostpassword" style="display:none;" value="{{hostpassword}}" />
             <button id="confirm_btn" type="button" class="btn btn-primary">Confirm</button>
         </form>
+        </div>
+        
     </div>
     <div class="col-lg-7">
         <div class="md-editor active">
@@ -137,7 +171,7 @@
             if(testflag==2){
                 $.ajax({
                     type: 'POST',
-                    url: 'ajax_testtool',
+                    url: '/ajax_testtool',
                     data: {'testdir':parent_text,'testtool':select_test},
                     dataType: 'text',
                     success:function(ret){
@@ -152,7 +186,7 @@
                 var grandparent_text = $.jstree.reference("#jstree_div").get_node(grandparent_node).text;
                 $.ajax({
                     type: 'POST',
-                    url: 'ajax_testtool',
+                    url: '/ajax_testtool',
                     data: {'testdir':grandparent_text,'testtool':parent_text},
                     dataType: 'text',
                     success:function(ret){
@@ -212,7 +246,7 @@
                 testflag=2;
                 $.ajax({
                     type: 'POST',
-                    url: 'ajax_testcfg',
+                    url: '/ajax_testcfg',
                     data: {'testcfg':select_test},
                     dataType: 'text',
                     success:function(ret){
@@ -225,7 +259,7 @@
                 testflag=3;
                 $.ajax({
                     type: 'POST',
-                    url: 'ajax_testcfg',
+                    url: '/ajax_testcfg',
                     data: {'testcfg':parent_text},
                     dataType: 'text',
                     success:function(ret){
@@ -302,20 +336,24 @@
         }
         total_cfg_str=total_cfg_str.substring(0,total_cfg_str.length-1);
         total_cfg_str += "}"
-        console.log(total_cfg_str);
+        //console.log(total_cfg_str);
         //$("#selected_tools").val(total_cfg_str);
         var comment = $("#comment").val();
+        var host = $("#host").val();
+        var hostuser = $("#hostuser").val();
+        var hostpassword = $("#hostpassword").val();
         $.ajax({
                 type: 'POST',
                 beforeSend:function () {
                     $("#spiner").show();
                 },
-                url: 'ajax_run',
-                data: {'selected_tools':total_cfg_str,'comment':comment},
-                dataType: 'text',
+                url: '/ajax_run',
+                data: {'selected_tools':total_cfg_str,'comment':comment,'host':host,'hostuser':hostuser,'hostpassword':hostpassword},
+                dataType: 'json',
                 success:function(ret){
-                    //console.log(ret);
-                    window.location.href="/run";
+                    console.log(ret);
+                    //window.location.href="/run/?host="+ret.host+"&user="+ret.user+"&passwd="+ret.password;
+                    document:torun.submit();
                 },
                 complete:function(){
                     
@@ -332,7 +370,7 @@
          var cfg_name = $("#cfg_name").text();
          $.ajax({
                 type: 'POST',
-                url: 'ajax_savecfg',
+                url: '/ajax_savecfg',
                 data: {'cfg_content':cfg_content,'testdir':testdir,'cfg_name':cfg_name},
                 dataType: 'text',
                 success:function(ret){

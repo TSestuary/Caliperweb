@@ -6,16 +6,42 @@
 
 {% block content %}
 <div class="row"> 
-    <a id="bytesttool"  href="/by_tool" class="btn btn-info btn-outline bychoice " role="button">By TestTools</a>
-    <a id="bycategory"  class="btn btn-info btn-outline bychoice active" role="button" >By Test Categories</a>
-    <a id="importconfig" href="/by_import" class="btn btn-info btn-outline bychoice" role="button" >Import Test Configuration</a>
+    <form method="POST" action="/run/by_tool" style="display:inline-block">
+        {% csrf_token %}
+        <input name="host" style="display:none;" value="{{host}}" />
+        <input name="hostuser" style="display:none;" value="{{hostuser}}" />
+        <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
+        <button id="bytesttool"  class="btn btn-info btn-outline bychoice " type="submit">By TestTools</button>
+    </form>
+    <form method="POST" action="/run/by_category" style="display:inline-block">
+        {% csrf_token %}
+        <input name="host" style="display:none;" value="{{host}}" />
+        <input name="hostuser" style="display:none;" value="{{hostuser}}" />
+        <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
+        <button id="bycategory" class="btn btn-info btn-outline bychoice active" type="submit">By Test Categories</button>
+    </form>
+    <form method="POST" action="/run/by_import" style="display:inline-block">
+        {% csrf_token %}
+        <input name="host" style="display:none;" value="{{host}}" />
+        <input name="hostuser" style="display:none;" value="{{hostuser}}" />
+        <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
+        <button id="importconfig" class="btn btn-info btn-outline bychoice" type="submit" >Import Test Configuration</button>
+    </form>
 </div>
 <div class="row" style="margin-top:10px;">
     <div class="col-lg-4">
+        <div id="cfg_jstree_div"></div>
         <div id="jstree_div"></div>
         <form method="POST" action="/run">
             {% csrf_token %}
+            <div class="form-group">
+                <label class="control-label">Comment</label>
+                <div><input id="comment" name="comment" type="text" class="form-control"></div>
+            </div>
             <input id="selected_tools" name="selected_tools" style="display:none;" />
+            <input id="host" name="host" style="display:none;" value="{{host}}" />
+            <input id="user" name="user" style="display:none;" value="{{user}}" />
+            <input id="password" name="password" style="display:none;" value="{{password}}" />
             <button id="confirm_btn" type="submit" class="btn btn-primary">Confirm</button>
         </form>
     </div>
@@ -33,6 +59,22 @@
 {% block script %}
 <script src="/static/js/jstree.min.js"></script>
 <script>
+    cfgs={{cfg|safe}};
+    cfgs_tmp_data=[];
+    for(cfg in cfgs){
+        cfg_tmp_data=[];
+        for(index in cfgs[cfg]){
+            cfg_tmp_data.push({"text":cfgs[cfg][index],"icon" : "fa fa-pencil"}); 
+        }
+        cfgs_tmp_data.push({"text":cfg,"children" :cfg_tmp_data});
+    }
+
+    var cfg_jsonData=[{
+        "text" : "cfg", 
+        "state" : { "opened" : true },
+         "children" : cfgs_tmp_data
+        }]
+
     var jsonData=[{
         "text" : "Categories", 
         "state" : { "opened" : true },
@@ -65,6 +107,9 @@
     }]
 
     $(function(){
+        $.ajaxSetup({
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+        });
         $('#jstree_div')
         .jstree({
             "plugins" : [ "checkbox","types" ,"changed"],
@@ -85,6 +130,105 @@
             }
         });
 
+        $('#cfg_jstree_div')
+        .on("changed.jstree", function (e, data) {
+            var select_test = data.instance.get_selected(true)[0].text; 
+            var parent_node= data.instance.get_selected(true)[0].parent;
+            var parent_text = $.jstree.reference("#cfg_jstree_div").get_node(parent_node).text;
+            console.log(select_test);
+            /*
+            var reg = /\.\w+$/;
+            select_test = select_test.replace(reg,'');
+            if(parent_text){
+                parent_text = parent_text.replace(reg,'');
+            }
+            */
+            if(select_test=="cfg"){
+                testflag=1;
+            }else if(parent_text =="cfg"){
+                testflag=2;
+                $.ajax({
+                    type: 'POST',
+                    url: 'ajax_testcfg',
+                    data: {'testcfg':select_test},
+                    dataType: 'text',
+                    success:function(ret){
+                        $("textarea").val(ret);
+                        $("#testdir").val("");
+                        $("#cfg_name").text(select_test);
+                    }
+                });
+            }else{
+                testflag=3;
+                $.ajax({
+                    type: 'POST',
+                    url: 'ajax_testcfg',
+                    data: {'testcfg':parent_text},
+                    dataType: 'text',
+                    success:function(ret){
+                        $("textarea").val(ret);
+                        $("#testdir").val("");
+                        $("#cfg_name").text(parent_text);
+                        var pos=$("#text_area").val().indexOf("["+select_test+"]");
+                        if(pos!=-1)
+                            setCursorPosition(document.getElementById("text_area"),pos+select_test.length+2);
+                    }
+                });
+            }
+        })
+        .jstree({
+            "plugins" : [ "types" ,"changed"],
+            "types": {
+                "default" : {
+                    "icon" : false  // 关闭默认图标
+                },
+            },
+            'core' : {
+                'data' : cfg_jsonData,
+                "check_callback": true,
+            }
+        });
+
     });
+
+    $("#confirm_btn").click(function(){
+
+        })
+
+    $("#save_btn").click(function(){
+         var cfg_content = $("textarea").val();
+         var testdir = $("#testdir").val();
+         var cfg_name = $("#cfg_name").text();
+         $.ajax({
+                type: 'POST',
+                url: 'ajax_savecfg',
+                data: {'cfg_content':cfg_content,'testdir':testdir,'cfg_name':cfg_name},
+                dataType: 'text',
+                success:function(ret){
+                    console.log(ret);
+                }
+            });
+     })
+
+    function setCursorPosition(elem, index) {
+        var val = elem.value
+        var len = val.length
+    
+        // 超过文本长度直接返回
+        if (len < index) return
+        setTimeout(function() {
+            elem.focus()
+            if (elem.setSelectionRange) { // 标准浏览器
+                elem.setSelectionRange(index, index)   
+            } else { // IE9-
+                var range = elem.createTextRange()
+                range.moveStart("character", -len)
+                range.moveEnd("character", -len)
+                range.moveStart("character", index)
+                range.moveEnd("character", 0)
+                range.select()
+            }
+        }, 10)
+    }
 </script>
 {% endblock %}

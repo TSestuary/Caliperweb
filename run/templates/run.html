@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Caliper | run{% endblock title%}
+{% block title %}Caliper | Run{% endblock title%}
 {% block link %}
 <link href="/static/css/ladda-themeless.min.css" rel="stylesheet">
 {% endblock %}
@@ -8,7 +8,7 @@
 <div class="row">
     <div class="col-lg-4">
         <form class="form-horizontal" >
-            <div class="form-group">
+            <!--<div class="form-group">
                 <label class="col-sm-2 control-label">Host:</label>
                 <div class="col-sm-10"><input id="host" type="text" class="form-control" onkeyup="this.value=value.replace(/[^\d|.]/g,'');" ></div>
             </div>
@@ -19,7 +19,7 @@
             <div class="form-group">
                 <label class="col-sm-2 control-label">Password:</label>
                 <div class="col-sm-10"><input id="password" type="password" class="form-control"></div>
-            </div>
+            </div>-->
             <div class="form-group">
                 <label class="col-sm-2 control-label">Command:</label>
                 <div class="col-sm-10">
@@ -42,8 +42,7 @@
                 </div>
             </div>
             <div class="form-group">
-            <button id="confirm_btn" type="button" class="ladda-button ladda-button-demo btn btn-primary pull-right"  data-style="zoom-in">Confirm</button> 
-            <!-- <button class="ladda-button ladda-button-demo btn btn-primary" data-style="zoom-in"><span class="ladda-label">Submit</span><span class="ladda-spinner"></span></button> -->
+                <button id="confirm_btn" type="button" class="ladda-button ladda-button-demo btn btn-primary pull-right"  data-style="zoom-in">Confirm</button> 
             </div>
         </form>
     </div>
@@ -60,6 +59,11 @@
             </div>
         </div>
         <textarea id="terminal" rows="30" cols="120" spellcheck="false" style="background-color:white;" disabled></textarea>
+    </div>
+    <div>
+        <input id="host" name="host" style="display:none;" value="{{host}}" />
+        <input id="hostuser" name="hostuser" style="display:none;" value="{{hostuser}}" />
+        <input id="hostpassword" name="hostpassword" style="display:none;" value="{{hostpassword}}" />
     </div>
 </div>
 {% endblock content%}
@@ -117,9 +121,15 @@
         // start button loading
         l.ladda( 'start' );
         // generate command
+        
         var host = $("#host").val();
-        var user = $("#user").val();
-        var password = $("#password").val();
+        var user = $("#hostuser").val();
+        var password = $("#hostpassword").val();
+        /*
+        var host = getQueryString("host"); 
+        var user = getQueryString("user"); 
+        var password = getQueryString("passwd"); 
+        */
         var command = "caliper -";
         if($("#checkbox_folder")[0].checked){
             command += "f "+ $("#select_folder").val() +" -";
@@ -180,5 +190,12 @@
     $("#clear_btn").click(function(){
         $("#terminal").text("");
     }) 
+/*
+    function getQueryString(name) {  
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");  
+        var r = window.location.search.substr(1).match(reg);  
+        if (r != null) return unescape(r[2]); return null;  
+    }
+*/
 </script>
 {% endblock %}

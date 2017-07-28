@@ -5,10 +5,28 @@
 {% endblock %}
 
 {% block content %}
-<div class="row"> 
-    <a id="bytesttool"  href="/by_tool" class="btn btn-info btn-outline bychoice" role="button">By TestTools</a>
-    <a id="bycategory"  href="/by_category" class="btn btn-info btn-outline bychoice" role="button" >By Test Categories</a>
-    <a id="importconfig" class="btn btn-info btn-outline bychoice active" role="button" >Import Test Configuration</a>
+<div class="row">
+    <form method="POST" action="/run/by_tool" style="display:inline-block">
+        {% csrf_token %}
+        <input name="host" style="display:none;" value="{{host}}" />
+        <input name="hostuser" style="display:none;" value="{{hostuser}}" />
+        <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
+        <button id="bytesttool"  class="btn btn-info btn-outline bychoice " type="submit">By TestTools</button>
+    </form>
+    <form method="POST" action="/run/by_category" style="display:inline-block">
+        {% csrf_token %}
+        <input name="host" style="display:none;" value="{{host}}" />
+        <input name="hostuser" style="display:none;" value="{{hostuser}}" />
+        <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
+        <button id="bycategory" class="btn btn-info btn-outline bychoice" type="submit">By Test Categories</button>
+    </form>
+    <form method="POST" action="/run/by_import" style="display:inline-block">
+        {% csrf_token %}
+        <input name="host" style="display:none;" value="{{host}}" />
+        <input name="hostuser" style="display:none;" value="{{hostuser}}" />
+        <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
+        <button id="importconfig" class="btn btn-info btn-outline bychoice active" type="submit" >Import Test Configuration</button>
+    </form>
 </div>
 <div class="row">
     

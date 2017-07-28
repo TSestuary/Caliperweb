@@ -40,7 +40,7 @@
                     <a href="/trend"><i class="fa fa-line-chart"></i> <span class="nav-label">Trend</span>  </a>
                 </li>
                 <li>
-                    <a id="runtag" href="/run"><i class="fa fa-motorcycle"></i> <span class="nav-label">Run</span></a>
+                    <a id="runtag" href="/run/host"><i class="fa fa-motorcycle"></i> <span class="nav-label">Run</span></a>
                 </li>
             </ul>
 
@@ -55,7 +55,7 @@
                 <li>
                     <a style="cursor:default;"><i class="fa fa-user fa-lg" style="color:#1ab394;"></i>
                     <span>
-                        {%if user.is_authenticated%}
+                        {% if user.is_authenticated %}
                         <strong style="font-weight:500">
                             {{user.username}}
                         </strong>
@@ -103,7 +103,7 @@
     <script>
         var urlpath = location.pathname;
         var strlist=urlpath.substr(1).split("/");
-        if (["home","compare","trend"].indexOf(strlist[0])>-1){
+        
             $("#navlist a").each(function () {
                 //console.log("the href is:   " +$(this).attr('href'));
                 //console.log("strlist[0] is: " + strlist[0]);
@@ -112,9 +112,7 @@
                     $(this).parent().addClass('active');
                 }
             });
-        }else{
-            $("#runtag").parent().addClass('active');
-        }
+        
     </script>
     {% block script %}{% endblock %}
 </body>
