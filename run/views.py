@@ -57,11 +57,11 @@ def by_tool(request):
             test_tools={}
             for child_dir in child_dirs:
 
-                filepath = dirpath+"\\"+child_dir
+                filepath = os.path.join(dirpath,child_dir)
                 child_files = os.listdir(filepath)
                 for child_file in child_files:
                     if child_file.endswith('cfg'):
-                        filename=filepath+"\\"+child_file
+                        filename=os.path.join(filepath,child_file)
                         with open(filename,'r') as fr:
                             conf = ConfigParser.ConfigParser()
                             conf.readfp(fr)
@@ -147,13 +147,13 @@ def ajax_run(request):
             with open(filename, 'w') as fw:
                 conf.write(fw)
     shutil.copytree(USER_PATH_TMP, USER_PATH_SAVE)
-    comment=request.POST['comment']
+    # comment=request.POST['comment']
     host=request.POST['host']
     hostuser=request.POST['hostuser']
     hostpassword=request.POST['hostpassword']
     copy_cfg(host,hostuser,hostpassword,USER_PATH_TMP)
-    # return render(request,'run.html',{"selected_tools":selected_tools})
-    success_dict={"host":host,"hostuser":hostuser,"hostpassword":hostpassword}
+
+    success_dict={"host":host,"hostuser":hostuser,"hostpassword":hostpassword,"serverpath":USER_PATH_SAVE}
     return HttpResponse(json.dumps(success_dict),content_type="application/json")
     # return HttpResponse(selected_tools)
 
@@ -164,6 +164,7 @@ def echo(request):
     user = request.GET.get('user')
     password = request.GET.get('password')
     command = request.GET.get('command')
+    comment = request.GET.get('comment')
     if not request.is_websocket():#判断是不是websocket连接
         return render(request,'run.html')
     else:
@@ -194,9 +195,10 @@ def run(request):
     # client.close()
     # platform=request.POST['platform']
     # ip=request.POST['ip']
-    host=request.POST['host']
-    hostuser=request.POST['hostuser']
-    hostpassword=request.POST['hostpassword']
+    host = request.POST['host']
+    hostuser = request.POST['hostuser']
+    hostpassword = request.POST['hostpassword']
+    serverpath = request.POST['serverpath']
     # filename = "D:\\origin_caliper\\caliper-master\\configuration\\config\\client_config.cfg"
     # with open(filename,'r') as fr:
     #     conf = ConfigParser.ConfigParser()
@@ -207,7 +209,7 @@ def run(request):
     #     conf.set("TARGET", "user", user)
     # with open(filename, 'w') as fw:
     #     conf.write(fw)
-    return render(request,'run.html',{'host':host,'hostuser':hostuser,'hostpassword':hostpassword})
+    return render(request,'run.html',{'host':host,'hostuser':hostuser,'hostpassword':hostpassword,'serverpath':serverpath})
 
 
 def cfg(request):
