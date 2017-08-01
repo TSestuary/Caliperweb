@@ -4,7 +4,7 @@
 {% block content %}
 <div class="row">
     <div class="col-lg-4">
-        <form class="form-horizontal" method="POST" action="/run/by_tool">
+        <form id="hostform" class="form-horizontal" method="POST" action="/run/by_tool">
             {% csrf_token %}
             <div class="form-group">
                 <label class="col-sm-2 control-label">Host:</label>
@@ -19,7 +19,7 @@
                 <div class="col-sm-10"><input id="hostpassword" name="hostpassword" type="password" class="form-control"></div>
             </div>
             <div class="form-group">
-                <button id="confirm_btn" type="submit" class="btn btn-primary pull-right" >Confirm</button> 
+                <button id="confirm_btn" type="button" class="btn btn-primary pull-right" >Confirm</button> 
             </div>
         </form>
     </div>
@@ -27,4 +27,11 @@
 {% endblock content%}
 
 {% block script %}
+<script>
+$("#confirm_btn").click(function(){
+    console.log("ss");
+    
+    document:hostform.submit();
+})
+</script>
 {% endblock %}

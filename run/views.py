@@ -14,6 +14,8 @@ from django.conf import settings
 import paramiko
 from paramiko.ssh_exception import AuthenticationException
 from django.shortcuts import redirect
+from models import ConfigTable
+from task.models import TaskTable
 # Create your views here.
 
 ORIGINAL_TOTAL_PATH=settings.ORIGINAL_TOTAL_PATH
@@ -25,6 +27,19 @@ CLIENTS={}
 
 def host(request):
     return render(request, 'host.html')
+
+def auth_host(request):
+    host=request.POST['host']
+    hostuser=request.POST['hostuser']
+    hostpassword=request.POST['hostpassword']
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        client.connect(host,username=hostuser, password=hostpassword) 
+        client.close()
+        return HttpResponse("pass")
+    except AuthenticationException:
+        return HttpResponse("fail")
 
 def by_tool(request):
     global USER_PATH,USER_PATH_TMP,USER_PATH_CASE_TMP,USER_PATH_CFG_TMP
@@ -210,6 +225,23 @@ def run(request):
     # with open(filename, 'w') as fw:
     #     conf.write(fw)
     return render(request,'run.html',{'host':host,'hostuser':hostuser,'hostpassword':hostpassword,'serverpath':serverpath})
+
+def ajax_db(request):
+    host = request.POST['host']
+    hostuser = request.POST['hostuser']
+    comment = request.POST['comment']
+    serverpath = request.POST['serverpath']
+    # command = request.POST['command']
+    user = request.user.username
+    cfg = ConfigTable(path=serverpath)
+    cfg.save()
+    TaskTable.objects.create(host=host,
+                                hostuser=hostuser,
+                                comment=comment,
+                                user=user,
+                                path_id=cfg.id
+                                )
+    return HttpResponse('success')
 
 
 def cfg(request):

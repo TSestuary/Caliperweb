@@ -21,6 +21,7 @@
             <input name="host" style="display:none;" value="{{host}}" />
             <input name="hostuser" style="display:none;" value="{{hostuser}}" />
             <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
+            <input name="serverpath" style="display:none;" />
             <button id="skip_btn" type="submit" class="btn btn-primary">Skip</button>
             <span>(跳过配置，使用host下user目录原有configuration,仅供测试方便使用)</span>
         </form>
@@ -52,17 +53,14 @@
     <div class="col-lg-4">
         <div id="cfg_jstree_div"></div>
         <div id="jstree_div"></div>
-        <div>
+        <div class="form-group" style="margin-top:10px;">
         <form id="torun" method="POST" action="/run">
             {% csrf_token %}
-            <div class="form-group">
-                <label class="control-label">Comment</label>
-                <div><input id="comment" type="text" class="form-control"></div>
-            </div>
             <input id="selected_tools" style="display:none;" />
             <input id="host" name="host" style="display:none;" value="{{host}}" />
             <input id="hostuser" name="hostuser" style="display:none;" value="{{hostuser}}" />
             <input id="hostpassword" name="hostpassword" style="display:none;" value="{{hostpassword}}" />
+            <input id="serverpath" name="serverpath" style="display:none;" />
             <button id="confirm_btn" type="button" class="btn btn-primary">Confirm</button>
         </form>
         </div>
@@ -338,7 +336,6 @@
         total_cfg_str += "}"
         //console.log(total_cfg_str);
         //$("#selected_tools").val(total_cfg_str);
-        var comment = $("#comment").val();
         var host = $("#host").val();
         var hostuser = $("#hostuser").val();
         var hostpassword = $("#hostpassword").val();
@@ -348,10 +345,11 @@
                     $("#spiner").show();
                 },
                 url: '/ajax_run',
-                data: {'selected_tools':total_cfg_str,'comment':comment,'host':host,'hostuser':hostuser,'hostpassword':hostpassword},
+                data: {'selected_tools':total_cfg_str,'host':host,'hostuser':hostuser,'hostpassword':hostpassword},
                 dataType: 'json',
                 success:function(ret){
                     console.log(ret);
+                    $("#serverpath").val(ret.serverpath);
                     //window.location.href="/run/?host="+ret.host+"&user="+ret.user+"&passwd="+ret.password;
                     document:torun.submit();
                 },

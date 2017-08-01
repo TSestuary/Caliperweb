@@ -43,6 +43,7 @@ urlpatterns = [
     url(r'^cfg$',run_views.cfg,name='cfg'),
     url(r'^run$',run_views.run,name='run'),
     url(r'^echo/$',run_views.echo,name='echo'),
+    url(r'^ajax_db$',run_views.ajax_db,name='ajax_db'),
     url(r'^ajax_stop$',run_views.ajax_stop,name='ajax_stop'),
     url(r'^ajax_testtool$',run_views.ajax_testtool,name='ajax_testtool'),
     url(r'^ajax_testcfg$',run_views.ajax_testcfg,name='ajax_testcfg'),
