@@ -39,7 +39,6 @@ urlpatterns = [
     url(r'^run/host$',run_views.host,name='host'),
     
     url(r'^ajax_passhost$',run_views.ajax_passhost,name='ajax_passhost'),
-    url(r'^ajax_showhost$',run_views.ajax_showhost,name='ajax_showhost'),
     
     url(r'^ajax_distribute$',run_views.ajax_distribute,name='ajax_distribute'),
     url(r'^run/by_tool$',run_views.by_tool,name='by_tool'),

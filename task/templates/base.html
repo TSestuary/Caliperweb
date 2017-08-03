@@ -40,14 +40,14 @@
                     <a href="/trend" aria-href="/trend"><i class="fa fa-line-chart"></i> <span class="nav-label">Trend</span>  </a>
                 </li>
                 <li>
-                    {% ifequal user.groups.values.0.id 3%}
+                    {% ifequal user.groups.values.0.name 'admin user'%}
                     <a href="/run/host" aria-href="/run/host"><i class="fa fa-motorcycle"></i> <span class="nav-label">Run</span></a>
                     {% else %}
                     <form id="hostinfo" method="POST" action="/run/by_tool">
                         {% csrf_token %}
-                        <input id="host" name="host" style="display:none;" />
+                        <input id="host_ip" name="host" style="display:none;" />
                         <input name="hostuser" style="display:none;" value="{{user.username}}" />
-                        <input id="hostpassword" name="hostpassword" style="display:none;" />
+                        <input id="host_password" name="hostpassword" style="display:none;" />
                         
                     </form>
                     <a id="runtag" aria-href="/run/by_tool" ><i class="fa fa-motorcycle"></i> <span class="nav-label">Run</span></a>
@@ -134,8 +134,8 @@
                 dataType: 'json',
                 success:function(ret){
                     if(ret.exist=="yes"){
-                        $("#host").val(ret.host);
-                        $("#hostpassword").val(ret.hostpassword);
+                        $("#host_ip").val(ret.host);
+                        $("#host_password").val(ret.hostpassword);
                     }else{
                         $("#host").val('');
                     }

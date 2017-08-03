@@ -42,7 +42,7 @@ def ajax_passhost(request):
     else:
         success_dict={"exist":"no"}
         return HttpResponse(json.dumps(success_dict),content_type="application/json")
-
+'''
 def ajax_showhost(request):
     selectuser=request.POST['selectuser']
     distribute = DistributeTable.objects.filter(hostuser=selectuser)
@@ -53,21 +53,11 @@ def ajax_showhost(request):
     else:
         success_dict={"exist":"no"}
         return HttpResponse(json.dumps(success_dict),content_type="application/json")
-
+'''
 
 def ajax_distribute(request):
     host=request.POST['host']
-    selectuser=request.POST['selectuser']
-    one_user = User.objects.get(username=selectuser)
-    distribute = DistributeTable.objects.filter(hostuser=selectuser)
-    if distribute:
-        distribute = DistributeTable.objects.get(hostuser=selectuser)
-        distribute.host=host
-        distribute.save()
-    else:
-        DistributeTable.objects.create(host=host,
-                                        hostuser=selectuser,
-                                        user_id=one_user.id)
+    DistributeTable.objects.all().update(host=host)
     return HttpResponse(one_user.id)
 
 def auth_host(request):

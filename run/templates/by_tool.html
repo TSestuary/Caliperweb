@@ -2,6 +2,7 @@
 {% block title %}Caliper | Configure{% endblock title%}
 {% block link %}
 <link href="/static/css/jstree.css" rel="stylesheet">
+<link href="/static/css/ladda-themeless.min.css" rel="stylesheet">
 <style type="text/css">
         .bg{ display: none;  position: fixed;  top: 0%;  left: 0%;  width: 100%;  height: 100%;  background-color: black;  z-index:1001;  -moz-opacity: 0.7;  opacity:.70;  filter: alpha(opacity=70);}
 </style>
@@ -26,33 +27,44 @@
             <span>(跳过配置，使用host下user目录原有configuration,仅供测试方便使用)</span>
         </form>
 </div>
-<div class="row">
-    <form method="POST" action="/run/by_tool" style="display:inline-block">
-        {% csrf_token %}
-        <input name="host" style="display:none;" value="{{host}}" />
-        <input name="hostuser" style="display:none;" value="{{hostuser}}" />
-        <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
-        <button id="bytesttool"  class="btn btn-info btn-outline bychoice active" type="submit">TestTools</button>
-    </form>
-    <form method="POST" action="/run/by_category" style="display:inline-block">
-        {% csrf_token %}
-        <input name="host" style="display:none;" value="{{host}}" />
-        <input name="hostuser" style="display:none;" value="{{hostuser}}" />
-        <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
-        <button id="bycategory" class="btn btn-info btn-outline bychoice" type="submit">Test Categories</button>
-    </form>
-    <form method="POST" action="/run/by_import" style="display:inline-block">
-        {% csrf_token %}
-        <input name="host" style="display:none;" value="{{host}}" />
-        <input name="hostuser" style="display:none;" value="{{hostuser}}" />
-        <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
-        <button id="importconfig" class="btn btn-info btn-outline bychoice" type="submit" >Import Test Configuration</button>
-    </form>
-</div>
+
 <div class="row" style="margin-top:10px;">
     <div class="col-lg-4">
-        <div id="cfg_jstree_div"></div>
-        <div id="jstree_div"></div>
+        <h4>Test case config</h4>
+        <div style="border: 1px solid #ccc;border-radius: 4px;padding: 20px;margin-bottom: 20px;">
+            <div class="row" style="padding-bottom: 20px;padding-left: 20px">
+                <form method="POST" action="/run/by_tool" style="display:inline-block">
+                    {% csrf_token %}
+                    <input name="host" style="display:none;" value="{{host}}" />
+                    <input name="hostuser" style="display:none;" value="{{hostuser}}" />
+                    <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
+                    <button id="bytesttool"  class="btn btn-info btn-outline bychoice active" type="submit">TestTools</button>
+                </form>
+                <form method="POST" action="/run/by_category" style="display:inline-block">
+                    {% csrf_token %}
+                    <input name="host" style="display:none;" value="{{host}}" />
+                    <input name="hostuser" style="display:none;" value="{{hostuser}}" />
+                    <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
+                    <button id="bycategory" class="btn btn-info btn-outline bychoice" type="submit">Test Categories</button>
+                </form>
+                <form method="POST" action="/run/by_import" style="display:inline-block">
+                    {% csrf_token %}
+                    <input name="host" style="display:none;" value="{{host}}" />
+                    <input name="hostuser" style="display:none;" value="{{hostuser}}" />
+                    <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
+                    <button id="importconfig" class="btn btn-info btn-outline bychoice" type="submit" >Import Test Configuration</button>
+                </form>
+            </div>
+            <div id="jstree_div"></div>
+        </div>
+        <h4>Client config</h4>
+        <div style="border: 1px solid #ccc;border-radius: 4px;padding: 20px;margin-bottom: 20px;">
+            <div id="client_jstree_div"></div>
+        </div>
+        <h4>Email config</h4>
+        <div style="border: 1px solid #ccc;border-radius: 4px;padding: 20px;margin-bottom: 20px;">
+            <div id="email_jstree_div"></div>
+        </div>
         <div class="form-group" style="margin-top:10px;">
         <form id="torun" method="POST" action="/run">
             {% csrf_token %}
@@ -71,13 +83,16 @@
             <input id="testdir" style="display:none;" /> 
             <h4 id="cfg_name"></h4>
             <textarea id="text_area" rows="30" cols="120" spellcheck="false" > </textarea>
-            <button id="save_btn" class="btn btn-primary " type="button"><i class="fa fa-check"></i>&nbsp;Save</button>
+            <button id="save_btn" class="ladda-button btn btn-primary " type="button"  data-style="zoom-in"><i class="fa fa-check"></i>&nbsp;Save</button>
         </div> 
     </div>
 </div>
 {% endblock content%}
 
 {% block script %}
+<script src="/static/js/spin.min.js"></script>
+<script src="/static/js/ladda.min.js"></script>
+<script src="/static/js/ladda.jquery.min.js"></script>
 <script src="/static/js/jstree.min.js"></script>
 <script>
     total_test_tools={{total_test_tools|safe}};
@@ -132,19 +147,35 @@
     }]
 
     cfgs={{cfg|safe}};
-    cfgs_tmp_data=[];
+    clients_tmp_data=[];
+    emails_tmp_data=[];
     for(cfg in cfgs){
-        cfg_tmp_data=[];
-        for(index in cfgs[cfg]){
-            cfg_tmp_data.push({"text":cfgs[cfg][index],"icon" : "fa fa-pencil"}); 
-        }
-        cfgs_tmp_data.push({"text":cfg,"children" :cfg_tmp_data});
+        if(cfg == 'client_config.cfg'){
+            client_tmp_data=[];
+            for(index in cfgs[cfg]){
+                client_tmp_data.push({"text":cfgs[cfg][index],"icon" : "fa fa-pencil"}); 
+            }
+            clients_tmp_data.push({"text":cfg,"children" :client_tmp_data});
+        }else{
+            email_tmp_data=[];
+            for(index in cfgs[cfg]){
+                email_tmp_data.push({"text":cfgs[cfg][index],"icon" : "fa fa-pencil"}); 
+            }
+            emails_tmp_data.push({"text":cfg,"children" :email_tmp_data});
+            }
+        
     }
 
-    var cfg_jsonData=[{
+    var client_jsonData=[{
         "text" : "cfg", 
         "state" : { "opened" : true },
-         "children" : cfgs_tmp_data
+         "children" : clients_tmp_data
+        }]
+
+    var email_jsonData=[{
+        "text" : "cfg", 
+        "state" : { "opened" : true },
+         "children" : emails_tmp_data
         }]
 
     $(function(){
@@ -225,11 +256,11 @@
          })
         })
         */
-        $('#cfg_jstree_div')
+        $('#client_jstree_div')
         .on("changed.jstree", function (e, data) {
             var select_test = data.instance.get_selected(true)[0].text; 
             var parent_node= data.instance.get_selected(true)[0].parent;
-            var parent_text = $.jstree.reference("#cfg_jstree_div").get_node(parent_node).text;
+            var parent_text = $.jstree.reference("#client_jstree_div").get_node(parent_node).text;
             console.log(select_test);
             /*
             var reg = /\.\w+$/;
@@ -279,7 +310,66 @@
                 },
             },
             'core' : {
-                'data' : cfg_jsonData,
+                'data' : client_jsonData,
+                "check_callback": true,
+            }
+        });
+
+        $('#email_jstree_div')
+        .on("changed.jstree", function (e, data) {
+            var select_test = data.instance.get_selected(true)[0].text; 
+            var parent_node= data.instance.get_selected(true)[0].parent;
+            var parent_text = $.jstree.reference("#email_jstree_div").get_node(parent_node).text;
+            console.log(select_test);
+            /*
+            var reg = /\.\w+$/;
+            select_test = select_test.replace(reg,'');
+            if(parent_text){
+                parent_text = parent_text.replace(reg,'');
+            }
+            */
+            if(select_test=="cfg"){
+                testflag=1;
+            }else if(parent_text =="cfg"){
+                testflag=2;
+                $.ajax({
+                    type: 'POST',
+                    url: '/ajax_testcfg',
+                    data: {'testcfg':select_test},
+                    dataType: 'text',
+                    success:function(ret){
+                        $("textarea").val(ret);
+                        $("#testdir").val("");
+                        $("#cfg_name").text(select_test);
+                    }
+                });
+            }else{
+                testflag=3;
+                $.ajax({
+                    type: 'POST',
+                    url: '/ajax_testcfg',
+                    data: {'testcfg':parent_text},
+                    dataType: 'text',
+                    success:function(ret){
+                        $("textarea").val(ret);
+                        $("#testdir").val("");
+                        $("#cfg_name").text(parent_text);
+                        var pos=$("#text_area").val().indexOf("["+select_test+"]");
+                        if(pos!=-1)
+                            setCursorPosition(document.getElementById("text_area"),pos+select_test.length+2);
+                    }
+                });
+            }
+        })
+        .jstree({
+            "plugins" : [ "types" ,"changed"],
+            "types": {
+                "default" : {
+                    "icon" : false  // 关闭默认图标
+                },
+            },
+            'core' : {
+                'data' : email_jsonData,
                 "check_callback": true,
             }
         });
@@ -398,7 +488,7 @@
         }, 10)
     }
 
-    
+    $( '.ladda-button' ).ladda( 'bind', { timeout: 500 } );
     
 </script>
 {% endblock %}
