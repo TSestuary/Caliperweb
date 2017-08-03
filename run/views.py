@@ -27,16 +27,24 @@ global CLIENTS
 CLIENTS={}
 # client = paramiko.SSHClient()
 
-def host(request):
-    group = Group.objects.get(name='com user')
-    users = group.user_set.all()    
-    return render(request, 'host.html',{'users':users})
+def host(request):  
+    distribute = DistributeTable.objects.filter(hostuser=request.user.username)
+    if distribute:
+        distribute = DistributeTable.objects.get(hostuser=request.user.username)
+        hostip = distribute.host
+    else:
+        hostip=''
+    return render(request, 'host.html',{'hostip':hostip})
 
 def ajax_passhost(request):
     selectuser=request.user.username
+    firstdis = DistributeTable.objects.all().first()
+    firstdis_hostip = firstdis.host
     distribute = DistributeTable.objects.filter(hostuser=selectuser)
     if distribute:
         distribute = DistributeTable.objects.get(hostuser=selectuser)
+        distribute.host = firstdis_hostip
+        distribute.save()
         success_dict={"host":distribute.host,'hostpassword':distribute.passwd,"exist":"yes"}
         return HttpResponse(json.dumps(success_dict),content_type="application/json")
     else:
@@ -58,7 +66,7 @@ def ajax_showhost(request):
 def ajax_distribute(request):
     host=request.POST['host']
     DistributeTable.objects.all().update(host=host)
-    return HttpResponse(one_user.id)
+    return HttpResponse(host)
 
 def auth_host(request):
     host=request.POST['host']
