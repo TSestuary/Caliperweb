@@ -30,17 +30,29 @@
             <ul class="nav metismenu" id="navlist">
                 
                 <li >
-                    <a href="/home"><i class="fa fa-home"></i> <span class="nav-label">Test Task</span></a>
+                    <a href="/home" aria-href="/home"><i class="fa fa-home"></i> <span class="nav-label">Test Task</span></a>
                 </li>
                 
                 <li>
-                    <a href="/compare"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Compare</span></a>
+                    <a href="/compare" aria-href="/compare"><i class="fa fa-bar-chart-o"></i> <span class="nav-label">Compare</span></a>
                 </li>
                 <li>
-                    <a href="/trend"><i class="fa fa-line-chart"></i> <span class="nav-label">Trend</span>  </a>
+                    <a href="/trend" aria-href="/trend"><i class="fa fa-line-chart"></i> <span class="nav-label">Trend</span>  </a>
                 </li>
                 <li>
-                    <a id="runtag" href="/run/host"><i class="fa fa-motorcycle"></i> <span class="nav-label">Run</span></a>
+                    {% ifequal user.groups.values.0.id 3%}
+                    <a href="/run/host" aria-href="/run/host"><i class="fa fa-motorcycle"></i> <span class="nav-label">Run</span></a>
+                    {% else %}
+                    <form id="hostinfo" method="POST" action="/run/by_tool">
+                        {% csrf_token %}
+                        <input id="host" name="host" style="display:none;" />
+                        <input name="hostuser" style="display:none;" value="{{user.username}}" />
+                        <input id="hostpassword" name="hostpassword" style="display:none;" />
+                        
+                    </form>
+                    <a id="runtag" aria-href="/run/by_tool" ><i class="fa fa-motorcycle"></i> <span class="nav-label">Run</span></a>
+                    
+                    {% endifequal %}
                 </li>
             </ul>
 
@@ -107,11 +119,33 @@
             $("#navlist a").each(function () {
                 //console.log("the href is:   " +$(this).attr('href'));
                 //console.log("strlist[0] is: " + strlist[0]);
-                if (($(this).attr('href')).indexOf(strlist[0]) > -1&&$(this).attr('href')!=''){
+                if (($(this).attr('aria-href')).indexOf(strlist[0]) > -1&&$(this).attr('aria-href')!=''){
                     //console.log("the id is:   "+ $(this).parent().attr('id'));
                     $(this).parent().addClass('active');
                 }
             });
+            $.ajaxSetup({
+                    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+            });
+            $(function(){
+                $.ajax({
+                type: 'POST',
+                url: '/ajax_passhost',
+                dataType: 'json',
+                success:function(ret){
+                    if(ret.exist=="yes"){
+                        $("#host").val(ret.host);
+                        $("#hostpassword").val(ret.hostpassword);
+                    }else{
+                        $("#host").val('');
+                    }
+                }
+                });
+            })
+        $("#runtag").click(function(){
+            
+            document:hostinfo.submit();
+        })
         
     </script>
     {% block script %}{% endblock %}

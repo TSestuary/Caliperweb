@@ -11,14 +11,14 @@
         <input name="host" style="display:none;" value="{{host}}" />
         <input name="hostuser" style="display:none;" value="{{hostuser}}" />
         <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
-        <button id="bytesttool"  class="btn btn-info btn-outline bychoice " type="submit">By TestTools</button>
+        <button id="bytesttool"  class="btn btn-info btn-outline bychoice " type="submit">TestTools</button>
     </form>
     <form method="POST" action="/run/by_category" style="display:inline-block">
         {% csrf_token %}
         <input name="host" style="display:none;" value="{{host}}" />
         <input name="hostuser" style="display:none;" value="{{hostuser}}" />
         <input name="hostpassword" style="display:none;" value="{{hostpassword}}" />
-        <button id="bycategory" class="btn btn-info btn-outline bychoice active" type="submit">By Test Categories</button>
+        <button id="bycategory" class="btn btn-info btn-outline bychoice active" type="submit">Test Categories</button>
     </form>
     <form method="POST" action="/run/by_import" style="display:inline-block">
         {% csrf_token %}

@@ -14,8 +14,10 @@ from django.conf import settings
 import paramiko
 from paramiko.ssh_exception import AuthenticationException
 from django.shortcuts import redirect
-from models import ConfigTable
+from models import ConfigTable,DistributeTable
 from task.models import TaskTable
+from django.contrib.auth.models import User, Group 
+from django.contrib.auth.hashers import check_password 
 # Create your views here.
 
 ORIGINAL_TOTAL_PATH=settings.ORIGINAL_TOTAL_PATH
@@ -26,7 +28,47 @@ CLIENTS={}
 # client = paramiko.SSHClient()
 
 def host(request):
-    return render(request, 'host.html')
+    group = Group.objects.get(name='com user')
+    users = group.user_set.all()    
+    return render(request, 'host.html',{'users':users})
+
+def ajax_passhost(request):
+    selectuser=request.user.username
+    distribute = DistributeTable.objects.filter(hostuser=selectuser)
+    if distribute:
+        distribute = DistributeTable.objects.get(hostuser=selectuser)
+        success_dict={"host":distribute.host,'hostpassword':distribute.passwd,"exist":"yes"}
+        return HttpResponse(json.dumps(success_dict),content_type="application/json")
+    else:
+        success_dict={"exist":"no"}
+        return HttpResponse(json.dumps(success_dict),content_type="application/json")
+
+def ajax_showhost(request):
+    selectuser=request.POST['selectuser']
+    distribute = DistributeTable.objects.filter(hostuser=selectuser)
+    if distribute:
+        distribute = DistributeTable.objects.get(hostuser=selectuser)
+        success_dict={"host":distribute.host,"exist":"yes"}
+        return HttpResponse(json.dumps(success_dict),content_type="application/json")
+    else:
+        success_dict={"exist":"no"}
+        return HttpResponse(json.dumps(success_dict),content_type="application/json")
+
+
+def ajax_distribute(request):
+    host=request.POST['host']
+    selectuser=request.POST['selectuser']
+    one_user = User.objects.get(username=selectuser)
+    distribute = DistributeTable.objects.filter(hostuser=selectuser)
+    if distribute:
+        distribute = DistributeTable.objects.get(hostuser=selectuser)
+        distribute.host=host
+        distribute.save()
+    else:
+        DistributeTable.objects.create(host=host,
+                                        hostuser=selectuser,
+                                        user_id=one_user.id)
+    return HttpResponse(one_user.id)
 
 def auth_host(request):
     host=request.POST['host']

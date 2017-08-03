@@ -8,6 +8,7 @@ from django.contrib import auth
 from django.contrib.auth.models import User,Group
 from django.http import StreamingHttpResponse
 from django.conf import settings
+from run.models import DistributeTable
 
 # Create your views here.
 DOWNLOAD_PATH=settings.DOWNLOAD_PATH
@@ -15,13 +16,28 @@ DOWNLOAD_NAME=settings.DOWNLOAD_NAME
 
 def main(request):
     return render(request, 'main.html')
-
+# just for test
 def userIntoCaliperDB(request):
+    # create admin user
     user = User()
-    user.username = 'ytt'
-    user.set_password('123')
+    user.username = 'zhangxj'
+    user.set_password('zhangxj@123')
     user.save()
-    com_group = Group.objects.get(name="admin user")
+    admin_group = Group.objects.get(name="admin user")
+    user.groups=[admin_group]
+    # create com user
+    user = User()
+    user.username = 'chenzhihui'
+    user.set_password('123456')
+    user.save()
+    com_group = Group.objects.get(name="com user")
+    user.groups=[com_group]
+
+    user = User()
+    user.username = 'hsp'
+    user.set_password('hsp')
+    user.save()
+    com_group = Group.objects.get(name="com user")
     user.groups=[com_group]
     return HttpResponse("success")
 
@@ -36,6 +52,14 @@ def login_verify(request):
     if user is not None:
         if user.is_active:
             auth.login(request, user)
+            loginuser=User.objects.get(username=username)
+            distribute = DistributeTable.objects.filter(hostuser=username)
+            if distribute:
+                distribute = DistributeTable.objects.get(hostuser=username)
+                distribute.passwd=password
+                distribute.save()
+            else:
+                DistributeTable.objects.create(hostuser=username,passwd=password,user_id=loginuser.id)
             return HttpResponse('success')
         else:
             return HttpResponse('fail')

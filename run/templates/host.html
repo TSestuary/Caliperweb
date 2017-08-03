@@ -1,25 +1,36 @@
 {% extends 'base.html' %}
 {% block title %}Caliper | Host{% endblock title%}
+{% block link %}
+<link href="/static/css/ladda-themeless.min.css" rel="stylesheet">
+{% endblock %}
 
 {% block content %}
 <div class="row">
+    <div class="col-lg-2">
+        <select id="selectuser" name="selectuser" class="form-control" onchange="showhost();">
+            {% for oneuser in users %}
+                <option value={{oneuser}}>{{oneuser}}</option>
+            {% endfor %}
+        </select>
+        
+    </div>
     <div class="col-lg-4">
         <form id="hostform" class="form-horizontal" method="POST" action="/run/by_tool">
             {% csrf_token %}
             <div class="form-group">
-                <label class="col-sm-2 control-label">Host:</label>
+                <label class="col-sm-2 control-label">Host IP:</label>
                 <div class="col-sm-10"><input id="host" name="host" type="text" class="form-control" onkeyup="this.value=value.replace(/[^\d|.]/g,'');" ></div>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="display:none;">
                 <label class="col-sm-2 control-label">User:</label>
                 <div class="col-sm-10"><input id="hostuser" name="hostuser" type="text" class="form-control"></div>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="display:none;">
                 <label class="col-sm-2 control-label">Password:</label>
                 <div class="col-sm-10"><input id="hostpassword" name="hostpassword" type="password" class="form-control"></div>
             </div>
             <div class="form-group">
-                <button id="confirm_btn" type="button" class="btn btn-primary pull-right" >Confirm</button> 
+                <button id="confirm_btn" type="button" class="ladda-button btn btn-primary pull-right"  data-style="zoom-in" >Confirm</button>
             </div>
         </form>
     </div>
@@ -27,11 +38,55 @@
 {% endblock content%}
 
 {% block script %}
+<script src="/static/js/spin.min.js"></script>
+<script src="/static/js/ladda.min.js"></script>
+<script src="/static/js/ladda.jquery.min.js"></script>
 <script>
+    /*
 $("#confirm_btn").click(function(){
     console.log("ss");
     
     document:hostform.submit();
 })
+*/
+$( '.ladda-button' ).ladda( 'bind', { timeout: 500 } );
+$(function(){
+    showhost();
+})
+$.ajaxSetup({
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+    });
+function showhost(){
+    var selectuser = $("#selectuser").val();
+    $.ajax({
+        type: 'POST',
+        url: '/ajax_showhost',
+        data: {'selectuser':selectuser},
+        dataType: 'json',
+        success:function(ret){
+            if(ret.exist=="yes"){
+                $("#host").val(ret.host);
+                $("#hostpassword").val(ret.hostpassword);
+            }else{
+                $("#host").val('');
+            }
+        }
+    });
+}
+$("#confirm_btn").click(function(){
+    var selectuser = $("#selectuser").val();
+    var host = $("#host").val();
+    $("#hostuser").val(selectuser);
+    $.ajax({
+        type: 'POST',
+        url: '/ajax_distribute',
+        data: {'selectuser':selectuser,"host":host},
+        dataType: 'text',
+        success:function(ret){
+            console.log(ret);
+        }
+    });
+})
+
 </script>
 {% endblock %}
