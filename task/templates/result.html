@@ -18,7 +18,11 @@
         for (index in result_files){
             console.log(result_files[index]);
             file=result_files[index];
-            name=file.split("\\output\\")[1];
+            if(file.indexOf("/home")==0){
+                name=file.split("/output/")[1];
+            }else{
+                name=file.split("\\output\\")[1];
+            }
             console.log(name);
             $("#result").append("<a aria-path='"+file+"' aria-value='"+name+"'>"+name+"</a><br/>");
         }
