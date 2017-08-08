@@ -190,6 +190,16 @@
 
         socket.onclose = function(evt) {
             console.log("Connection closed.");
+            alert("Test Finished");
+            $.ajax({
+                type: 'POST',
+                url: 'ajax_uploadresult',
+                data: {'host':host,'hostuser':user,'hostpassword':password,'serverpath':serverpath},
+                dataType: 'text',
+                success:function(ret){
+                    console.log(ret);
+                }
+            });
         }; 
         
     })

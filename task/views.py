@@ -52,3 +52,31 @@ def get_files():
         filesname.append(i)
 
     return filesname
+
+def result(request,taskid):
+    task = TaskTable.objects.get(id=taskid)
+    serverpath = task.serverpath
+    result_files = showtree(serverpath)
+    return render(request,'result.html',{'result_files':json.dumps(result_files)})   
+
+def showtree(rootDir): 
+    # result_dirs=[]
+    result_files=[]
+    list_dirs = os.walk(rootDir) 
+    for root, dirs, files in list_dirs: 
+        '''
+        for d in dirs: 
+            dirpath=os.path.join(root, d)
+            result_dirs.append(dirpath.split("output\\")[1])    
+        '''
+        for f in files: 
+            filepath=os.path.join(root, f)  
+            result_files.append(filepath)
+    return result_files
+
+def ajax_showresult(request):
+    resultpath=request.POST['resultpath']
+    file=open(resultpath)
+    filecontent= file.read()
+    file.close()
+    return HttpResponse(filecontent)

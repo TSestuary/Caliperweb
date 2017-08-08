@@ -30,8 +30,10 @@ urlpatterns = [
     url(r'^login_verify$', login_views.login_verify, name='login_verify'),
     url(r'^downloadfile$', login_views.file_Download, name='downloadfile'),
 
-    url(r'^home$',task_views.home,name='home'),
+    url(r'^task$',task_views.home,name='home'),
     url(r'^upload$',task_views.upload,name='upload'),
+    url(r'^task/(\w+)/$',task_views.result,name='result'),
+    url(r'^ajax_showresult$',task_views.ajax_showresult,name='ajax_showresult'),
 
     url(r'^compare$',compare_views.compare,name='compare'),
     url(r'^compare/(\w+)/$',compare_views.test_aspect,name='test_aspect'),
@@ -41,6 +43,8 @@ urlpatterns = [
     url(r'^ajax_passhost$',run_views.ajax_passhost,name='ajax_passhost'),
     
     url(r'^ajax_distribute$',run_views.ajax_distribute,name='ajax_distribute'),
+    url(r'^ajax_install$',run_views.ajax_install,name='ajax_install'),
+    url(r'^ajax_uploadresult$',run_views.ajax_uploadresult,name='ajax_uploadresult'),
     url(r'^run/by_tool$',run_views.by_tool,name='by_tool'),
     url(r'^run/by_category$',run_views.by_category,name='by_category'),
     url(r'^run/by_import$',run_views.by_import,name='by_import'),

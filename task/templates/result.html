@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Caliper | Result{% endblock title%}
+
+{% block content %}
+<div class="row">
+<div id="result" class="col-lg-4"></div>
+<div class="col-lg-7">
+    <h4 id="result_name"></h4>
+    <textarea id="text_area" rows="30" cols="120" spellcheck="false" > </textarea>
+</div>
+</div>
+{% endblock content%}
+
+{% block script %}
+<script>
+    $(function(){
+        var result_files={{result_files|safe}};
+        for (index in result_files){
+            console.log(result_files[index]);
+            file=result_files[index];
+            name=file.split("\\output\\")[1];
+            console.log(name);
+            $("#result").append("<a aria-path='"+file+"' aria-value='"+name+"'>"+name+"</a><br/>");
+        }
+
+        $("a").click(function(){
+            resultpath=$(this).attr('aria-path');
+            $("#result_name").text($(this).attr('aria-value'));
+            $.ajax({
+                    type: 'POST',
+                    url: '/ajax_showresult',
+                    data: {'resultpath':resultpath},
+                    dataType: 'text',
+                    success:function(ret){
+                        $("textarea").val(ret);
+                    }
+                });
+        })
+    })
+
+    
+    
+    
+</script>
+{% endblock %}

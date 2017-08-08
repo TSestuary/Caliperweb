@@ -11,3 +11,6 @@
 #ignore cfg directory
 resources/cfg/**
 
+#ignore result directory
+resources/result/**
+

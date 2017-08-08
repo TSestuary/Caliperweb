@@ -21,7 +21,7 @@
                 <td></td>
                 <td>{{tab.date_time}}</td>
                 <td>{{tab.user}}</td>
-                <td><i class="fa fa-search" aria-hidden="true"></i></td>
+                <td><a href="/task/{{tab.id}}" target="_blank"><i class="fa fa-search" aria-hidden="true"></i></a></td>
                 <td><i class="fa fa-trash-o" aria-hidden="true"></i></td>
             </tr>
             {% else %}
@@ -32,7 +32,7 @@
                 <td></td>
                 <td>{{tab.date_time}}</td>
                 <td>{{tab.user}}</td>
-                <td><i class="fa fa-search" aria-hidden="true"></i></td>
+                <td><a href="/task/{{tab.id}}" target="_blank"><i class="fa fa-search" aria-hidden="true"></i></a></td>
                 <td><i class="fa fa-trash-o" aria-hidden="true"></i></td>
             </tr>
             {% endifequal %}

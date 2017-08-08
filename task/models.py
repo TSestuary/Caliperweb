@@ -15,4 +15,5 @@ class TaskTable(models.Model):
     host = models.CharField(max_length=50,null=True)
     hostuser = models.CharField(max_length=50,null=True)
     hostpath = models.CharField(max_length=200,null=True)
+    serverpath = models.CharField(max_length=200,null=True)
     path = models.ForeignKey('run.ConfigTable',on_delete=models.CASCADE,null=True)

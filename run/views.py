@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import os
+import os,stat
 import json
 import shutil
 import ConfigParser
@@ -22,6 +22,7 @@ from django.contrib.auth.hashers import check_password
 
 ORIGINAL_TOTAL_PATH=settings.ORIGINAL_TOTAL_PATH
 PRE_PATH=settings.PRE_PATH
+BASE_DIR = settings.BASE_DIR
 
 global CLIENTS
 CLIENTS={}
@@ -67,6 +68,66 @@ def ajax_distribute(request):
     host=request.POST['host']
     DistributeTable.objects.all().update(host=host)
     return HttpResponse(host)
+
+def ajax_install(request):
+    host=request.POST['host']
+    hostuser=request.POST['hostuser']
+    hostpassword=request.POST['hostpassword']
+    return HttpResponse(host)
+
+def ajax_uploadresult(request):
+    host=request.POST['host']
+    hostuser=request.POST['hostuser']
+    hostpassword=request.POST['hostpassword']
+    serverpath = request.POST['serverpath']
+    allpath = copy_result(host,hostuser,hostpassword)
+    cfg = ConfigTable.objects.get(path=serverpath)
+    task = TaskTable.objects.filter(path_id=cfg.id).order_by("-id")
+    task_object = task[0]
+    task_object.hostpath=allpath['hostpath']
+    task_object.serverpath=allpath['serverpath']
+    task_object.save()
+    return HttpResponse(allpath)
+
+def copy_result(host,user,password):
+    ssh = paramiko.Transport(host,22)
+    ssh.connect(username= user, password = password)
+    sftp = paramiko.SFTPClient.from_transport(ssh)
+    path="/home/"+user+"/caliper_output"
+    dirs = sftp.listdir(path)
+    dateappendix = []
+    for i in dirs:
+        if i.find("_WS_")>=0:
+            tmp = i.split("_WS_")
+            dateappendix.append(tmp[1])
+    sortdate = sorted(dateappendix,reverse=True)
+    for j in dirs:
+        if j.find(sortdate[0])>=0:
+            resultpath=j
+    hostpath=os.path.join(path,resultpath,"output")
+    serverpath=os.path.join(BASE_DIR,"resources","result",resultpath,"output")
+    if not os.path.isdir(serverpath):
+        os.makedirs(serverpath)
+    iter_copy(hostpath,sftp,serverpath)
+    return {'hostpath':hostpath,'serverpath':serverpath}
+
+def iter_copy(hostpath,sftp,serverpath):
+    hostpath = hostpath.replace("\\","/")
+    for fileattr in sftp.listdir_attr(hostpath):
+        if stat.S_ISDIR(fileattr.st_mode):
+            host_path = os.path.join(hostpath,fileattr.filename)
+            server_path = os.path.join(serverpath,fileattr.filename)
+            if not os.path.isdir(server_path):
+                os.mkdir(server_path)
+            host_path = host_path.replace("\\","/")
+            iter_copy(host_path,sftp,server_path)
+        else:
+            filepath = os.path.join(hostpath,fileattr.filename)
+            server_path = os.path.join(serverpath,fileattr.filename)
+            filepath = filepath.replace("\\","/")
+            sftp.get(filepath,server_path)
+
+
 
 def auth_host(request):
     host=request.POST['host']
